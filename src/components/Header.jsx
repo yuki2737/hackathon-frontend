@@ -17,10 +17,12 @@ const Header = () => {
         alignItems: "center",
         padding: "12px 16px",
         borderBottom: "1px solid #ddd",
-        position: "sticky",
+        position: "fixed",
         top: 0,
         background: "#fff",
-        zIndex: 10,
+        zIndex: 1000,
+        boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+        width: "100%",
       }}
     >
       <h2 style={{ cursor: "pointer" }} onClick={() => navigate("/")}>

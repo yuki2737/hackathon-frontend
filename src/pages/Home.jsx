@@ -23,7 +23,19 @@ const Home = () => {
 
   return (
     <div style={{ padding: "20px" }}>
-      <h1>ホーム（商品一覧）</h1>
+      <h1
+        style={{
+          position: "sticky",
+          top: "110px",
+          background: "#fff",
+          padding: "10px 0",
+          margin: 0,
+          zIndex: 500,
+          borderBottom: "1px solid #ddd",
+        }}
+      >
+        ホーム（商品一覧）
+      </h1>
 
       {/* 🔹商品一覧 */}
       <div
@@ -43,9 +55,28 @@ const Home = () => {
               padding: "10px",
               borderRadius: "8px",
               cursor: "pointer",
+              opacity: product.status === "sold_out" ? 0.5 : 1,
               boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+              position: "relative",
             }}
           >
+            {product.status === "sold_out" && (
+              <div
+                style={{
+                  position: "absolute",
+                  top: "8px",
+                  left: "8px",
+                  backgroundColor: "rgba(230,0,51,0.9)",
+                  color: "white",
+                  padding: "4px 8px",
+                  borderRadius: "4px",
+                  fontSize: "12px",
+                  fontWeight: "bold",
+                }}
+              >
+                売り切れ
+              </div>
+            )}
             <img
               src={product.imageUrl || "https://placehold.jp/150x150.png"}
               alt={product.title}
@@ -63,13 +94,18 @@ const Home = () => {
       <button
         onClick={() => navigate("/create")}
         style={{
-          display: "block",
-          margin: "20px auto 0",
-          padding: "10px 20px",
+          position: "fixed",
+          right: "16px",
+          bottom: "16px",
+          padding: "12px 20px",
           backgroundColor: "#007bff",
           color: "white",
           border: "none",
-          borderRadius: "6px",
+          borderRadius: "999px",
+          fontWeight: "bold",
+          boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
+          cursor: "pointer",
+          zIndex: 1000,
         }}
       >
         出品する

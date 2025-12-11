@@ -13,25 +13,29 @@ import CreateProduct from "./pages/CreateProduct";
 import EditProduct from "./pages/EditProduct";
 import Tabs from "./components/Tabs";
 import PurchaseComplete from "./pages/PurchaseComplete";
+import ProductPreview from "./pages/ProductPreview";
 
 function App() {
   return (
     <Router>
       <Header /> {/* ← 全ページ共通で表示されるヘッダー */}
       <Tabs />
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/search" element={<Search />} />
-        <Route path="/ranking" element={<Ranking />} />
-        <Route path="/sell" element={<Sell />} />
-        <Route path="/mypage" element={<MyPage />} />
-        <Route path="/orders" element={<OrderHistory />} />
-        <Route path="/products/:id" element={<ProductDetail />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/create" element={<CreateProduct />} />
-        <Route path="/products/:id/edit" element={<EditProduct />} />
-        <Route path="/purchase-complete" element={<PurchaseComplete />} />
-      </Routes>
+      <div style={{ marginTop: "120px", marginBottom: "80px" }}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/search" element={<Search />} />
+          <Route path="/ranking" element={<Ranking />} />
+          <Route path="/sell" element={<Sell />} />
+          <Route path="/mypage" element={<MyPage />} />
+          <Route path="/orders" element={<OrderHistory />} />
+          <Route path="/products/:id" element={<ProductDetail />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/create" element={<CreateProduct />} />
+          <Route path="/products/:id/edit" element={<EditProduct />} />
+          <Route path="/purchase-complete" element={<PurchaseComplete />} />
+          <Route path="/products/:id/preview" element={<ProductPreview />} />
+        </Routes>
+      </div>
     </Router>
   );
 }

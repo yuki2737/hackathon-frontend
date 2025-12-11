@@ -16,10 +16,12 @@ const Tabs = () => {
         justifyContent: "space-around",
         borderTop: "1px solid #ddd",
         padding: "10px 0",
-        position: "sticky",
-        bottom: 0,
+        position: "fixed",
+        top: 70,
         background: "white",
         zIndex: 10,
+        width: "100%",
+        zIndex: 1000,
       }}
     >
       <Link to="/" style={location.pathname === "/" ? activeStyle : {}}>

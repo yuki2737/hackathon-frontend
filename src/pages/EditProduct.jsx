@@ -50,6 +50,20 @@ const EditProduct = () => {
 
   return (
     <div style={{ padding: "20px" }}>
+      <button
+        onClick={() => navigate(-1)}
+        style={{
+          marginBottom: "15px",
+          padding: "6px 12px",
+          cursor: "pointer",
+          borderRadius: "6px",
+          border: "1px solid #ccc",
+          background: "white",
+        }}
+      >
+        ← 戻る
+      </button>
+
       <h1>商品編集</h1>
 
       <input

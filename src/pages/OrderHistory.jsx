@@ -7,9 +7,10 @@ const OrderHistory = () => {
   const [orders, setOrders] = useState([]);
 
   useEffect(() => {
-    const uid = fireAuth.currentUser?.uid;
-    if (!uid) return;
-
+    //const uid = fireAuth.currentUser?.uid;
+    //if (!uid) return;
+    //一時的に固定ユーザーIDを使う
+    const uid = 1;
     fetch(`http://localhost:8080/orders?userId=${uid}`)
       .then((res) => res.json())
       .then((data) => {
@@ -21,7 +22,37 @@ const OrderHistory = () => {
 
   return (
     <div style={{ padding: "20px" }}>
-      <h1>購入履歴</h1>
+      <h1
+        style={{
+          position: "sticky",
+          top: "110px",
+          background: "#fff",
+          padding: "10px 0",
+          margin: 0,
+          zIndex: 500,
+          borderBottom: "1px solid #ddd",
+        }}
+      >
+        購入履歴
+      </h1>
+      <button
+        onClick={() => navigate("/mypage")}
+        style={{
+          position: "fixed",
+          top: "130px",
+          marginLeft: "auto",
+          background: "#007bff",
+          color: "white",
+          border: "none",
+          padding: "8px 14px",
+          borderRadius: "6px",
+          cursor: "pointer",
+          zIndex: 600,
+          right: "20px",
+        }}
+      >
+        マイページに戻る
+      </button>
 
       {orders.length === 0 ? (
         <p>購入履歴はありません。</p>
@@ -29,7 +60,7 @@ const OrderHistory = () => {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(2, 1fr)",
+            gridTemplateColumns: "repeat(6, 1fr)",
             gap: "12px",
             marginTop: "20px",
           }}
@@ -53,21 +84,19 @@ const OrderHistory = () => {
                 alt={order.product?.title}
                 style={{ width: "100%", borderRadius: "8px" }}
               />
-              <h3 style={{ marginTop: "10px" }}>{order.product?.title}</h3>
+              <h3 style={{ marginTop: "10px" }}>
+                商品名: {order.product?.title}
+              </h3>
               <p style={{ color: "#e60033", fontWeight: "bold" }}>
-                {order.product?.price}円
+                料金: {order.product?.price}円
               </p>
               <small>
-                購入日: {new Date(order.createdAt).toLocaleDateString()}
+                購入日: {new Date(order.purchasedAt).toLocaleDateString()}
               </small>
             </div>
           ))}
         </div>
       )}
-
-      <button style={{ marginTop: "20px" }} onClick={() => navigate("/mypage")}>
-        マイページに戻る
-      </button>
     </div>
   );
 };

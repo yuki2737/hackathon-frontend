@@ -7,10 +7,11 @@ const MyPage = () => {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
-    const uid = fireAuth.currentUser?.uid;
+    //const uid = fireAuth.currentUser?.uid;
 
-    if (!uid) return;
-
+    //if (!uid) return;
+    //一時的に固定ユーザーIDを使う
+    const uid = 1;
     fetch(`http://localhost:8080/products?user=${uid}`)
       .then((res) => res.json())
       .then((data) => {
@@ -22,10 +23,33 @@ const MyPage = () => {
 
   return (
     <div style={{ padding: "20px" }}>
-      <h1>マイページ（出品一覧）</h1>
+      <h1
+        style={{
+          position: "sticky",
+          top: "110px",
+          background: "#fff",
+          padding: "10px 0",
+          margin: 0,
+          zIndex: 500,
+          borderBottom: "1px solid #ddd",
+        }}
+      >
+        マイページ（出品一覧）
+      </h1>
       <button
         onClick={() => navigate("/orders")}
-        style={{ marginTop: "10px", padding: "8px 14px" }}
+        style={{
+          position: "fixed",
+          top: "130px",
+          right: "20px",
+          padding: "8px 14px",
+          zIndex: 600,
+          background: "#007bff",
+          color: "white",
+          border: "none",
+          borderRadius: "6px",
+          cursor: "pointer",
+        }}
       >
         購入履歴を見る
       </button>
@@ -36,7 +60,7 @@ const MyPage = () => {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(2, 1fr)",
+            gridTemplateColumns: "repeat(6, 1fr)",
             gap: "12px",
             marginTop: "20px",
           }}
@@ -44,7 +68,7 @@ const MyPage = () => {
           {products.map((product) => (
             <div
               key={product.id}
-              onClick={() => navigate(`/products/${product.id}/edit`)}
+              onClick={() => navigate(`/products/${product.id}/preview`)}
               style={{
                 position: "relative",
                 border: "1px solid #ccc",
@@ -84,6 +108,10 @@ const MyPage = () => {
               <p style={{ color: "#e60033", fontWeight: "bold" }}>
                 {product.price}円
               </p>
+              {/* ▼ 出品日を表示 */}
+              <small style={{ color: "#555" }}>
+                出品日: {new Date(product.createdAt).toLocaleDateString()}
+              </small>
             </div>
           ))}
         </div>
