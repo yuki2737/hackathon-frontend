@@ -89,27 +89,6 @@ const Home = () => {
           </div>
         ))}
       </div>
-
-      {/* 🔹出品ボタン */}
-      <button
-        onClick={() => navigate("/create")}
-        style={{
-          position: "fixed",
-          right: "16px",
-          bottom: "16px",
-          padding: "12px 20px",
-          backgroundColor: "#007bff",
-          color: "white",
-          border: "none",
-          borderRadius: "999px",
-          fontWeight: "bold",
-          boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
-          cursor: "pointer",
-          zIndex: 1000,
-        }}
-      >
-        出品する
-      </button>
     </div>
   );
 };

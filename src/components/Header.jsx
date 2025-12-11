@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../auth/AuthProvider";
 
 const Header = () => {
+  const { user, loading, logout } = useAuth();
   const navigate = useNavigate();
   const [keyword, setKeyword] = useState("");
 
@@ -9,6 +11,9 @@ const Header = () => {
     if (!keyword) return;
     navigate(`/search?keyword=${keyword}`);
   };
+
+  // ローディング中は何も表示しない（エラー防止）
+  if (loading) return null;
 
   return (
     <header
@@ -49,6 +54,54 @@ const Header = () => {
       >
         検索
       </button>
+
+      {/* 右端に配置 */}
+      <div style={{ marginLeft: "auto" }}>
+        {user && (
+          <span
+            style={{
+              marginRight: "12px",
+              fontSize: "14px",
+              color: "#555",
+              fontWeight: "bold",
+            }}
+          >
+            {user.email} さん
+          </span>
+        )}
+        {user ? (
+          <button
+            onClick={async () => {
+              await logout(); // ← AuthProvider 経由
+              navigate("/");
+            }}
+            style={{
+              padding: "8px 14px",
+              backgroundColor: "#dc3545",
+              color: "#fff",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+          >
+            ログアウト
+          </button>
+        ) : (
+          <button
+            onClick={() => navigate("/login")}
+            style={{
+              padding: "8px 14px",
+              backgroundColor: "#007bff",
+              color: "#fff",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+          >
+            ログイン
+          </button>
+        )}
+      </div>
     </header>
   );
 };

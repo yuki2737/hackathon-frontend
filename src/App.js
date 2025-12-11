@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Header from "./components/Header"; // ← 追加
 
 import Home from "./pages/Home";
@@ -17,7 +17,7 @@ import ProductPreview from "./pages/ProductPreview";
 
 function App() {
   return (
-    <Router>
+    <>
       <Header /> {/* ← 全ページ共通で表示されるヘッダー */}
       <Tabs />
       <div style={{ marginTop: "120px", marginBottom: "80px" }}>
@@ -36,7 +36,7 @@ function App() {
           <Route path="/products/:id/preview" element={<ProductPreview />} />
         </Routes>
       </div>
-    </Router>
+    </>
   );
 }
 
