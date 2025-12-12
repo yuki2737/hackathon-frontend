@@ -11,9 +11,12 @@ const Search = () => {
   const keyword = params.get("keyword") || "";
 
   useEffect(() => {
+    // キーワードのURLエンコードを安全に処理
     if (!keyword) return;
 
-    fetch(`http://localhost:8080/products?keyword=${keyword}`)
+    fetch(
+      `http://localhost:8080/products?keyword=${encodeURIComponent(keyword)}`
+    )
       .then((res) => res.json())
       .then((data) => {
         console.log("search results:", data);
@@ -29,7 +32,7 @@ const Search = () => {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(2, 1fr)",
+          gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
           gap: "12px",
           marginTop: "20px",
         }}

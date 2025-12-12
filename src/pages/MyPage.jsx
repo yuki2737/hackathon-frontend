@@ -1,26 +1,36 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { fireAuth } from "../firebase";
+import { fireAuth } from "../firebase/firebase";
 import { useAuth } from "../auth/AuthProvider";
 
 const MyPage = () => {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
 
+  const { user, loading } = useAuth();
+
   useEffect(() => {
+    if (!loading && !user) {
+      alert("マイページの表示にはログインが必要です");
+      navigate("/login");
+    }
+  }, [user, loading, navigate]);
+
+  useEffect(() => {
+    if (!user) return;
     //const uid = fireAuth.currentUser?.uid;
 
     //if (!uid) return;
     //一時的に固定ユーザーIDを使う
-    const uid = 1;
-    fetch(`http://localhost:8080/products?user=${uid}`)
+    const uid = user.uid;
+    fetch(`http://localhost:8080/products?uid=${uid}`)
       .then((res) => res.json())
       .then((data) => {
         console.log("MyPage response:", data);
         setProducts(data.products || []);
       })
       .catch((err) => console.error(err));
-  }, []);
+  }, [user]);
 
   return (
     <div style={{ padding: "20px" }}>
@@ -61,7 +71,7 @@ const MyPage = () => {
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(6, 1fr)",
+            gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
             gap: "12px",
             marginTop: "20px",
           }}

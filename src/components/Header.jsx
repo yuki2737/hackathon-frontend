@@ -28,35 +28,47 @@ const Header = () => {
         zIndex: 1000,
         boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
         width: "100%",
+        flexWrap: "wrap",
       }}
     >
       <h2 style={{ cursor: "pointer" }} onClick={() => navigate("/")}>
         Hackathon Market
       </h2>
 
-      <input
-        type="text"
-        placeholder="キーワード検索"
-        value={keyword}
-        onChange={(e) => setKeyword(e.target.value)}
+      <div
         style={{
+          display: "flex",
+          alignItems: "center",
+          flex: 1,
+          gap: "8px",
           marginLeft: "16px",
-          padding: "8px",
-          width: "50%",
-          borderRadius: "4px",
-          border: "1px solid #ccc",
+          flexWrap: "nowrap",
         }}
-      />
-
-      <button
-        onClick={handleSearch}
-        style={{ marginLeft: "10px", padding: "8px 14px" }}
       >
-        検索
-      </button>
+        <input
+          type="text"
+          placeholder="キーワード検索"
+          value={keyword}
+          onChange={(e) => setKeyword(e.target.value)}
+          style={{
+            padding: "8px",
+            width: "100%",
+            maxWidth: "480px",
+            borderRadius: "4px",
+            border: "1px solid #ccc",
+          }}
+        />
+
+        <button
+          onClick={handleSearch}
+          style={{ padding: "8px 14px", whiteSpace: "nowrap" }}
+        >
+          検索
+        </button>
+      </div>
 
       {/* 右端に配置 */}
-      <div style={{ marginLeft: "auto" }}>
+      <div style={{ marginLeft: "auto", marginTop: "8px" }}>
         {user && (
           <span
             style={{
@@ -72,7 +84,10 @@ const Header = () => {
         {user ? (
           <button
             onClick={async () => {
-              await logout(); // ← AuthProvider 経由
+              const ok = window.confirm("ログアウトしますか？");
+              if (!ok) return;
+              await logout();
+              alert("ログアウトしました");
               navigate("/");
             }}
             style={{

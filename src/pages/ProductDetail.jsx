@@ -1,28 +1,43 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { fireAuth } from "../firebase"; // ← 追加！
+import { fireAuth } from "../firebase/firebase"; // ← 追加！
+import { useAuth } from "../auth/AuthProvider";
 
 const ProductDetail = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
   const [product, setProduct] = useState(null);
+  const { user } = useAuth();
 
   // 🔥 購入処理：ここを修正！
   const handlePurchase = async () => {
+    if (!user) {
+      alert("購入にはログインが必要です");
+      navigate("/login");
+      return;
+    }
+
     try {
+      // DBのユーザーID取得
+      const userRes = await fetch(
+        `http://localhost:8080/auth/user?uid=${user.uid}`
+      );
+      const dbUser = await userRes.json();
+
+      if (!userRes.ok) {
+        alert("ユーザー情報の取得に失敗しました");
+        return;
+      }
+
       const res = await fetch("http://localhost:8080/orders", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           productId: Number(id),
-          buyerId: 1,
+          buyerUid: user.uid, // ← MySQL の ID を渡す
         }),
       });
 
       const data = await res.json();
-
       if (res.ok) {
         console.log("購入成功:", data);
         navigate("/purchase-complete");
@@ -34,6 +49,8 @@ const ProductDetail = () => {
       alert("購入処理中にエラーが発生しました");
     }
   };
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch(`http://localhost:8080/products/${id}`)

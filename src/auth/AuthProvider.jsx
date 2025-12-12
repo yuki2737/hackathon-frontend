@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { fireAuth } from "../firebase";
+import { fireAuth } from "../firebase/firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 
 // --------------------

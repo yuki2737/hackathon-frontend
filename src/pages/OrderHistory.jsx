@@ -1,24 +1,27 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { fireAuth } from "../firebase";
+import { useAuth } from "../auth/AuthProvider";
 
 const OrderHistory = () => {
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
+  const { user, loading } = useAuth();
 
   useEffect(() => {
-    //const uid = fireAuth.currentUser?.uid;
-    //if (!uid) return;
-    //一時的に固定ユーザーIDを使う
-    const uid = 1;
-    fetch(`http://localhost:8080/orders?userId=${uid}`)
+    if (loading) return;
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+    const uid = user.uid;
+    fetch(`http://localhost:8080/orders?uid=${uid}`)
       .then((res) => res.json())
       .then((data) => {
         console.log("OrderHistory response:", data);
         setOrders(data.orders || []);
       })
       .catch((err) => console.error(err));
-  }, []);
+  }, [user, loading, navigate]);
 
   return (
     <div style={{ padding: "20px" }}>

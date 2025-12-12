@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../auth/AuthProvider";
 
 const CreateProduct = () => {
   const [title, setTitle] = useState("");
@@ -7,8 +8,13 @@ const CreateProduct = () => {
   const [imageUrl, setImageUrl] = useState("");
   const [description, setDescription] = useState("");
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const handleSubmit = async () => {
+    if (!user) {
+      alert("ログインしてください");
+      return;
+    }
     try {
       const res = await fetch("http://localhost:8080/products", {
         method: "POST",
@@ -20,8 +26,8 @@ const CreateProduct = () => {
           price: Number(price),
           imageUrl,
           description,
-          category: "fashion", // 仮のデフォルト
-          userId: 1, // TODO: 本当はログインユーザーIDを入れる
+          category: "fashion",
+          uid: user.uid,
         }),
       });
 

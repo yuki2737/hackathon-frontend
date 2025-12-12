@@ -4,7 +4,7 @@ import {
   signInWithEmailAndPassword,
   signOut,
 } from "firebase/auth";
-import { fireAuth } from "../firebase";
+import { fireAuth } from "../firebase/firebase";
 import { useNavigate } from "react-router-dom";
 
 const Login = () => {
