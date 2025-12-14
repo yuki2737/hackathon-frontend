@@ -41,12 +41,28 @@ export const AuthProvider = ({ children }) => {
       }
 
       try {
-        const res = await fetch(`${API_BASE}/auth/user?uid=${currentUser.uid}`);
+        // ① まずユーザー取得
+        let res = await fetch(`${API_BASE}/auth/user?uid=${currentUser.uid}`);
 
+        // ② DB未登録なら自動登録
         if (res.status === 404) {
-          // DB未登録は想定内（Firebaseログインは有効）
-          setAppUser(null);
-          return;
+          const registerRes = await fetch(`${API_BASE}/auth/register`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              uid: currentUser.uid,
+              email: currentUser.email,
+              name: currentUser.displayName || "user",
+            }),
+          });
+
+          if (!registerRes.ok) {
+            const text = await registerRes.text().catch(() => "");
+            throw new Error(`自動登録失敗: ${registerRes.status} ${text}`);
+          }
+
+          // 再取得
+          res = await fetch(`${API_BASE}/auth/user?uid=${currentUser.uid}`);
         }
 
         if (!res.ok) {
