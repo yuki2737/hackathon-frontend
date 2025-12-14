@@ -7,15 +7,15 @@ const API_BASE = process.env.REACT_APP_API_BASE_URL;
 const OrderHistory = () => {
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
-  const { user, loading } = useAuth();
+  const { firebaseUser, loading } = useAuth();
 
   useEffect(() => {
     if (loading) return;
-    if (!user) {
+    if (!firebaseUser) {
       navigate("/login");
       return;
     }
-    const uid = user.uid;
+    const uid = firebaseUser.uid;
     if (!API_BASE) {
       console.error("REACT_APP_API_BASE_URL が設定されていません");
       return;
@@ -27,7 +27,7 @@ const OrderHistory = () => {
         setOrders(data.orders || []);
       })
       .catch((err) => console.error(err));
-  }, [user, loading, navigate]);
+  }, [firebaseUser, loading, navigate]);
 
   return (
     <div style={{ padding: "20px" }}>

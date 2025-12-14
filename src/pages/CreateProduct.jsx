@@ -10,11 +10,14 @@ const CreateProduct = () => {
   const [imageUrl, setImageUrl] = useState("");
   const [description, setDescription] = useState("");
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { firebaseUser, appUser, loading } = useAuth();
 
   const handleSubmit = async () => {
-    if (!user) {
+    if (loading) return;
+
+    if (!firebaseUser) {
       alert("ログインしてください");
+      navigate("/login");
       return;
     }
     if (!API_BASE) {
@@ -33,7 +36,7 @@ const CreateProduct = () => {
           imageUrl,
           description,
           category: "fashion",
-          uid: user.uid,
+          uid: firebaseUser.uid,
         }),
       });
 

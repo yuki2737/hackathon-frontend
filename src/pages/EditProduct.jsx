@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useAuth } from "../auth/AuthProvider";
 import { useNavigate, useParams } from "react-router-dom";
 
 const API_BASE = process.env.REACT_APP_API_BASE_URL;
@@ -6,6 +7,8 @@ const API_BASE = process.env.REACT_APP_API_BASE_URL;
 const EditProduct = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+
+  const { firebaseUser, loading } = useAuth();
 
   const [product, setProduct] = useState({
     title: "",
@@ -15,19 +18,38 @@ const EditProduct = () => {
   });
 
   useEffect(() => {
+    if (loading) return;
+
+    if (!firebaseUser) {
+      alert("商品編集にはログインが必要です");
+      navigate("/login");
+      return;
+    }
+
     if (!API_BASE) {
       console.error("REACT_APP_API_BASE_URL が設定されていません");
       return;
     }
+
     fetch(`${API_BASE}/products/${id}`)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("商品取得に失敗しました");
+        }
+        return res.json();
+      })
       .then((data) => {
         setProduct(data.product);
       })
       .catch((err) => console.error(err));
-  }, [id]);
+  }, [id, firebaseUser, loading, navigate]);
 
   const handleUpdate = () => {
+    if (!firebaseUser) {
+      alert("ログインしてください");
+      navigate("/login");
+      return;
+    }
     fetch(`${API_BASE}/products/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
@@ -42,6 +64,11 @@ const EditProduct = () => {
   };
 
   const handleDelete = () => {
+    if (!firebaseUser) {
+      alert("ログインしてください");
+      navigate("/login");
+      return;
+    }
     if (!window.confirm("本当に削除しますか？")) return;
 
     fetch(`${API_BASE}/products/${id}`, {

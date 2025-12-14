@@ -8,25 +8,25 @@ const MyPage = () => {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
 
-  const { user, loading } = useAuth();
+  const { firebaseUser, loading } = useAuth();
 
   useEffect(() => {
     if (loading) return;
-    if (!user) {
+    if (!firebaseUser) {
       alert("マイページの表示にはログインが必要です");
       navigate("/login");
     }
-  }, [user, loading, navigate]);
+  }, [firebaseUser, loading, navigate]);
 
   useEffect(() => {
-    if (loading || !user) return;
+    if (loading || !firebaseUser) return;
 
     if (!API_BASE) {
       console.error("REACT_APP_API_BASE_URL が設定されていません");
       return;
     }
 
-    const uid = user.uid;
+    const uid = firebaseUser.uid;
 
     fetch(`${API_BASE}/products?uid=${uid}`)
       .then((res) => {
@@ -42,7 +42,7 @@ const MyPage = () => {
       .catch((err) => {
         console.error("MyPage 商品取得エラー:", err);
       });
-  }, [user, loading]);
+  }, [firebaseUser, loading]);
 
   return (
     <div style={{ padding: "20px" }}>
