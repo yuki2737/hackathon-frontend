@@ -3,12 +3,13 @@ import { useAuth } from "../auth/AuthProvider";
 
 const FloatingSellButton = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { firebaseUser, loading } = useAuth();
 
   return (
     <button
       onClick={() => {
-        if (!user) {
+        if (loading) return;
+        if (!firebaseUser) {
           alert("出品にはログインが必要です");
           navigate("/login");
           return;
