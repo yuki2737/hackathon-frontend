@@ -24,16 +24,22 @@ export const AuthProvider = ({ children }) => {
   const API_BASE = process.env.REACT_APP_API_BASE_URL;
 
   useEffect(() => {
+    let isMounted = true;
+
     const unsubscribe = onAuthStateChanged(fireAuth, async (currentUser) => {
+      if (!isMounted) return;
+
       setFirebaseUser(currentUser);
 
       if (!currentUser) {
+        if (!isMounted) return;
         setAppUser(null);
         setLoading(false);
         return;
       }
 
       if (!API_BASE) {
+        if (!isMounted) return;
         console.error("REACT_APP_API_BASE_URL が設定されていません");
         setAppUser(null);
         setLoading(false);
@@ -43,26 +49,17 @@ export const AuthProvider = ({ children }) => {
       try {
         // ① まずユーザー取得
         let res = await fetch(`${API_BASE}/auth/user?uid=${currentUser.uid}`);
+        if (!isMounted) return;
 
-        // ② DB未登録なら自動登録
         if (res.status === 404) {
-          const registerRes = await fetch(`${API_BASE}/auth/register`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              uid: currentUser.uid,
-              email: currentUser.email,
-              name: currentUser.displayName || "user",
-            }),
+          setAppUser({
+            uid: currentUser.uid,
+            email: currentUser.email,
+            name: currentUser.displayName || "user",
+            isTemp: true,
           });
-
-          if (!registerRes.ok) {
-            const text = await registerRes.text().catch(() => "");
-            throw new Error(`自動登録失敗: ${registerRes.status} ${text}`);
-          }
-
-          // 再取得
-          res = await fetch(`${API_BASE}/auth/user?uid=${currentUser.uid}`);
+          setLoading(false);
+          return;
         }
 
         if (!res.ok) {
@@ -71,16 +68,21 @@ export const AuthProvider = ({ children }) => {
         }
 
         const data = await res.json();
+        if (!isMounted) return;
         setAppUser(data);
+        setLoading(false);
       } catch (e) {
+        if (!isMounted) return;
         console.error("AuthProvider error:", e);
         setAppUser(null);
-      } finally {
         setLoading(false);
       }
     });
 
-    return () => unsubscribe();
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
   }, [API_BASE]);
 
   // ログアウト処理

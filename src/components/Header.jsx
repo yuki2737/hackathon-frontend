@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthProvider";
 
 const Header = () => {
-  const { user, loading, logout } = useAuth();
+  const { firebaseUser, loading, logout } = useAuth();
   const navigate = useNavigate();
   const [keyword, setKeyword] = useState("");
 
@@ -69,7 +69,7 @@ const Header = () => {
 
       {/* 右端に配置 */}
       <div style={{ marginLeft: "auto", marginTop: "8px" }}>
-        {user && (
+        {firebaseUser && (
           <span
             style={{
               marginRight: "12px",
@@ -78,10 +78,10 @@ const Header = () => {
               fontWeight: "bold",
             }}
           >
-            {user.email} さん
+            {firebaseUser.email} さん
           </span>
         )}
-        {user ? (
+        {firebaseUser ? (
           <button
             onClick={async () => {
               const ok = window.confirm("ログアウトしますか？");
