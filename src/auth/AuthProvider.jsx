@@ -40,58 +40,27 @@ export const AuthProvider = ({ children }) => {
         return;
       }
 
-      let didSetLoading = false;
       try {
-        // ① まず取得を試す
         const res = await fetch(`${API_BASE}/auth/user?uid=${currentUser.uid}`);
 
         if (res.status === 404) {
-          // ② 未登録は想定内 → 自動登録
-          const registerRes = await fetch(`${API_BASE}/auth/register`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              uid: currentUser.uid,
-              name: currentUser.displayName || "No Name",
-              email: currentUser.email,
-            }),
-          });
+          // DB未登録は想定内（Firebaseログインは有効）
+          setAppUser(null);
+          return;
+        }
 
-          if (!registerRes.ok) {
-            const text = await registerRes.text().catch(() => "");
-            throw new Error(`自動登録失敗: ${registerRes.status} ${text}`);
-          }
-
-          // ③ 登録後に再取得
-          const retryRes = await fetch(
-            `${API_BASE}/auth/user?uid=${currentUser.uid}`
-          );
-          if (!retryRes.ok) {
-            const text = await retryRes.text().catch(() => "");
-            throw new Error(
-              `登録後ユーザー取得失敗: ${retryRes.status} ${text}`
-            );
-          }
-
-          const retryData = await retryRes.json();
-          setAppUser(retryData);
-        } else if (res.ok) {
-          // ④ 既存ユーザー
-          const data = await res.json();
-          setAppUser(data);
-        } else {
+        if (!res.ok) {
           const text = await res.text().catch(() => "");
           throw new Error(`ユーザー取得失敗: ${res.status} ${text}`);
         }
+
+        const data = await res.json();
+        setAppUser(data);
       } catch (e) {
-        // 404はcatchされない
         console.error("AuthProvider error:", e);
         setAppUser(null);
       } finally {
-        if (!didSetLoading) {
-          setLoading(false);
-          didSetLoading = true;
-        }
+        setLoading(false);
       }
     });
 

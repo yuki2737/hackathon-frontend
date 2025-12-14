@@ -26,9 +26,32 @@ const Login = () => {
       alert("ユーザー名を入力してください");
       return;
     }
+
     try {
-      await createUserWithEmailAndPassword(fireAuth, email, password);
-      alert("Firebaseに登録できました！");
+      const userCredential = await createUserWithEmailAndPassword(
+        fireAuth,
+        email,
+        password
+      );
+
+      const uid = userCredential.user.uid;
+
+      const res = await fetch(`${API_BASE}/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          uid,
+          name,
+          email,
+        }),
+      });
+
+      if (!res.ok) {
+        const text = await res.text().catch(() => "");
+        throw new Error(`バックエンド登録失敗: ${res.status} ${text}`);
+      }
+
+      alert("登録完了しました");
       navigate("/");
     } catch (err) {
       alert("登録に失敗しました: " + err.message);
