@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
+const API_BASE = process.env.REACT_APP_API_BASE_URL;
+
 const Search = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -14,9 +16,12 @@ const Search = () => {
     // キーワードのURLエンコードを安全に処理
     if (!keyword) return;
 
-    fetch(
-      `http://localhost:8080/products?keyword=${encodeURIComponent(keyword)}`
-    )
+    if (!API_BASE) {
+      console.error("REACT_APP_API_BASE_URL が設定されていません");
+      return;
+    }
+
+    fetch(`${API_BASE}/products?keyword=${encodeURIComponent(keyword)}`)
       .then((res) => res.json())
       .then((data) => {
         console.log("search results:", data);

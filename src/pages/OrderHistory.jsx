@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthProvider";
 
+const API_BASE = process.env.REACT_APP_API_BASE_URL;
+
 const OrderHistory = () => {
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
@@ -14,7 +16,11 @@ const OrderHistory = () => {
       return;
     }
     const uid = user.uid;
-    fetch(`http://localhost:8080/orders?uid=${uid}`)
+    if (!API_BASE) {
+      console.error("REACT_APP_API_BASE_URL が設定されていません");
+      return;
+    }
+    fetch(`${API_BASE}/orders?uid=${uid}`)
       .then((res) => res.json())
       .then((data) => {
         console.log("OrderHistory response:", data);

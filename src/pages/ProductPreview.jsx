@@ -1,13 +1,20 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
+const API_BASE = process.env.REACT_APP_API_BASE_URL;
+
 const ProductPreview = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [product, setProduct] = useState(null);
 
   useEffect(() => {
-    fetch(`http://localhost:8080/products/${id}`)
+    if (!API_BASE) {
+      console.error("REACT_APP_API_BASE_URL が設定されていません");
+      return;
+    }
+
+    fetch(`${API_BASE}/products/${id}`)
       .then((res) => res.json())
       .then((data) => setProduct(data.product))
       .catch((err) => console.error(err));

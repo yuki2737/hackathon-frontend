@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
+const API_BASE = process.env.REACT_APP_API_BASE_URL;
+
 const EditProduct = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -13,7 +15,11 @@ const EditProduct = () => {
   });
 
   useEffect(() => {
-    fetch(`http://localhost:8080/products/${id}`)
+    if (!API_BASE) {
+      console.error("REACT_APP_API_BASE_URL が設定されていません");
+      return;
+    }
+    fetch(`${API_BASE}/products/${id}`)
       .then((res) => res.json())
       .then((data) => {
         setProduct(data.product);
@@ -22,7 +28,7 @@ const EditProduct = () => {
   }, [id]);
 
   const handleUpdate = () => {
-    fetch(`http://localhost:8080/products/${id}`, {
+    fetch(`${API_BASE}/products/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(product),
@@ -38,7 +44,7 @@ const EditProduct = () => {
   const handleDelete = () => {
     if (!window.confirm("本当に削除しますか？")) return;
 
-    fetch(`http://localhost:8080/products/${id}`, {
+    fetch(`${API_BASE}/products/${id}`, {
       method: "DELETE",
     })
       .then(() => {

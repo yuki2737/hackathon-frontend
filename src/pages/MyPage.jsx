@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { fireAuth } from "../firebase/firebase";
 import { useAuth } from "../auth/AuthProvider";
 
 const MyPage = () => {
@@ -10,7 +9,8 @@ const MyPage = () => {
   const { user, loading } = useAuth();
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (loading) return;
+    if (!user) {
       alert("マイページの表示にはログインが必要です");
       navigate("/login");
     }
@@ -18,13 +18,22 @@ const MyPage = () => {
 
   useEffect(() => {
     if (!user) return;
-    //const uid = fireAuth.currentUser?.uid;
 
-    //if (!uid) return;
-    //一時的に固定ユーザーIDを使う
+    const API_BASE = process.env.REACT_APP_API_BASE_URL;
+    if (!API_BASE) {
+      console.error("REACT_APP_API_BASE_URL が設定されていません");
+      return;
+    }
+
     const uid = user.uid;
-    fetch(`http://localhost:8080/products?uid=${uid}`)
-      .then((res) => res.json())
+
+    fetch(`${API_BASE}/products?uid=${uid}`)
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("商品取得に失敗しました");
+        }
+        return res.json();
+      })
       .then((data) => {
         console.log("MyPage response:", data);
         setProducts(data.products || []);

@@ -3,6 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { fireAuth } from "../firebase/firebase"; // ← 追加！
 import { useAuth } from "../auth/AuthProvider";
 
+const API_BASE = process.env.REACT_APP_API_BASE_URL;
+
 const ProductDetail = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
@@ -10,6 +12,11 @@ const ProductDetail = () => {
 
   // 🔥 購入処理：ここを修正！
   const handlePurchase = async () => {
+    if (!API_BASE) {
+      alert("API の接続先が設定されていません");
+      return;
+    }
+
     if (!user) {
       alert("購入にはログインが必要です");
       navigate("/login");
@@ -18,9 +25,7 @@ const ProductDetail = () => {
 
     try {
       // DBのユーザーID取得
-      const userRes = await fetch(
-        `http://localhost:8080/auth/user?uid=${user.uid}`
-      );
+      const userRes = await fetch(`${API_BASE}/auth/user?uid=${user.uid}`);
       const dbUser = await userRes.json();
 
       if (!userRes.ok) {
@@ -28,7 +33,7 @@ const ProductDetail = () => {
         return;
       }
 
-      const res = await fetch("http://localhost:8080/orders", {
+      const res = await fetch(`${API_BASE}/orders`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -53,7 +58,7 @@ const ProductDetail = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch(`http://localhost:8080/products/${id}`)
+    fetch(`${API_BASE}/products/${id}`)
       .then((res) => res.json())
       .then((data) => setProduct(data.product))
       .catch((err) => console.error(err));

@@ -7,6 +7,9 @@ import {
 import { fireAuth } from "../firebase/firebase";
 import { useNavigate } from "react-router-dom";
 
+const API_BASE = process.env.REACT_APP_API_BASE_URL;
+console.log("API_BASE =", API_BASE);
+
 const Login = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -24,14 +27,13 @@ const Login = () => {
 
       const uid = userCredential.user.uid;
 
-      await fetch("http://localhost:8080/auth/register", {
+      await fetch(`${API_BASE}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           uid,
           name,
           email,
-          password,
         }),
       });
 
@@ -45,7 +47,22 @@ const Login = () => {
   // ログイン
   const login = async () => {
     try {
-      await signInWithEmailAndPassword(fireAuth, email, password);
+      const userCredential = await signInWithEmailAndPassword(
+        fireAuth,
+        email,
+        password
+      );
+
+      const uid = userCredential.user.uid;
+
+      // アプリ用ユーザー取得
+      const res = await fetch(`${API_BASE}/auth/user?uid=${uid}`);
+      if (!res.ok) {
+        throw new Error("ユーザー情報の取得に失敗しました");
+      }
+      const appUser = await res.json();
+      console.log("Logged in app user:", appUser);
+
       alert("ログイン完了");
       navigate("/");
     } catch (err) {

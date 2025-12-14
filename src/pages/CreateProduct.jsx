@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthProvider";
 
+const API_BASE = process.env.REACT_APP_API_BASE_URL;
+
 const CreateProduct = () => {
   const [title, setTitle] = useState("");
   const [price, setPrice] = useState("");
@@ -15,8 +17,12 @@ const CreateProduct = () => {
       alert("ログインしてください");
       return;
     }
+    if (!API_BASE) {
+      alert("API の接続先が設定されていません");
+      return;
+    }
     try {
-      const res = await fetch("http://localhost:8080/products", {
+      const res = await fetch(`${API_BASE}/products`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

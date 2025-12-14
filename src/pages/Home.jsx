@@ -1,20 +1,34 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+const API_BASE = process.env.REACT_APP_API_BASE_URL;
+
 const Home = () => {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
 
   const fetchProducts = () => {
-    const url = `http://localhost:8080/products`;
+    if (!API_BASE) {
+      console.error("REACT_APP_API_BASE_URL が設定されていません");
+      return;
+    }
+
+    const url = `${API_BASE}/products`;
 
     fetch(url)
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error(`API error: ${res.status}`);
+        }
+        return res.json();
+      })
       .then((data) => {
         console.log("API response:", data);
         setProducts(data.products || []);
       })
-      .catch((err) => console.error(err));
+      .catch((err) => {
+        console.error("商品取得エラー:", err);
+      });
   };
 
   useEffect(() => {
