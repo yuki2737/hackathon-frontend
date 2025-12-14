@@ -41,8 +41,11 @@ const ProductDetail = () => {
 
       const data = await res.json();
 
+      console.log("order response status:", res.status);
+      console.log("order response body:", data);
+
       if (!res.ok) {
-        alert("購入に失敗しました: " + (data.error || ""));
+        alert(data.error || "購入に失敗しました");
         return;
       }
 
