@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthProvider";
 
+const API_BASE = process.env.REACT_APP_API_BASE_URL;
+
 const MyPage = () => {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
@@ -17,9 +19,8 @@ const MyPage = () => {
   }, [user, loading, navigate]);
 
   useEffect(() => {
-    if (!user) return;
+    if (loading || !user) return;
 
-    const API_BASE = process.env.REACT_APP_API_BASE_URL;
     if (!API_BASE) {
       console.error("REACT_APP_API_BASE_URL が設定されていません");
       return;
@@ -38,8 +39,10 @@ const MyPage = () => {
         console.log("MyPage response:", data);
         setProducts(data.products || []);
       })
-      .catch((err) => console.error(err));
-  }, [user]);
+      .catch((err) => {
+        console.error("MyPage 商品取得エラー:", err);
+      });
+  }, [user, loading]);
 
   return (
     <div style={{ padding: "20px" }}>
