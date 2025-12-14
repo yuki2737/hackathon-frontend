@@ -35,7 +35,7 @@ const ProductDetail = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           productId: Number(id),
-          buyerId: appUser.id,
+          buyerUid: firebaseUser.uid,
         }),
       });
 
