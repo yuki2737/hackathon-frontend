@@ -18,6 +18,14 @@ const Login = () => {
 
   // 新規登録
   const register = async () => {
+    if (!API_BASE) {
+      alert("API_BASE is not defined");
+      return;
+    }
+    if (!name.trim()) {
+      alert("ユーザー名を入力してください");
+      return;
+    }
     try {
       const userCredential = await createUserWithEmailAndPassword(
         fireAuth,
@@ -46,22 +54,12 @@ const Login = () => {
 
   // ログイン
   const login = async () => {
+    if (!API_BASE) {
+      alert("API_BASE is not defined");
+      return;
+    }
     try {
-      const userCredential = await signInWithEmailAndPassword(
-        fireAuth,
-        email,
-        password
-      );
-
-      const uid = userCredential.user.uid;
-
-      // アプリ用ユーザー取得
-      const res = await fetch(`${API_BASE}/auth/user?uid=${uid}`);
-      if (!res.ok) {
-        throw new Error("ユーザー情報の取得に失敗しました");
-      }
-      const appUser = await res.json();
-      console.log("Logged in app user:", appUser);
+      await signInWithEmailAndPassword(fireAuth, email, password);
 
       alert("ログイン完了");
       navigate("/");
