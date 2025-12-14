@@ -24,28 +24,29 @@ export const AuthProvider = ({ children }) => {
   const API_BASE = process.env.REACT_APP_API_BASE_URL;
 
   useEffect(() => {
-    // Firebase のログイン状態を監視
     const unsubscribe = onAuthStateChanged(fireAuth, async (currentUser) => {
       setFirebaseUser(currentUser);
 
-      // 未ログインなら appUser をクリアして終了
       if (!currentUser) {
         setAppUser(null);
         setLoading(false);
         return;
       }
 
-      // ログイン中：バックエンドからアプリ用ユーザーを取得
-      try {
-        if (!API_BASE) {
-          throw new Error("REACT_APP_API_BASE_URL が設定されていません");
-        }
+      if (!API_BASE) {
+        console.error("REACT_APP_API_BASE_URL が設定されていません");
+        setAppUser(null);
+        setLoading(false);
+        return;
+      }
 
-        // ① まずアプリ用ユーザー取得を試す
+      let didSetLoading = false;
+      try {
+        // ① まず取得を試す
         const res = await fetch(`${API_BASE}/auth/user?uid=${currentUser.uid}`);
 
-        // ② 未登録（404）の場合は自動登録 → 再取得
         if (res.status === 404) {
+          // ② 未登録は想定内 → 自動登録
           const registerRes = await fetch(`${API_BASE}/auth/register`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -61,7 +62,7 @@ export const AuthProvider = ({ children }) => {
             throw new Error(`自動登録失敗: ${registerRes.status} ${text}`);
           }
 
-          // 登録後に再取得
+          // ③ 登録後に再取得
           const retryRes = await fetch(
             `${API_BASE}/auth/user?uid=${currentUser.uid}`
           );
@@ -74,26 +75,26 @@ export const AuthProvider = ({ children }) => {
 
           const retryData = await retryRes.json();
           setAppUser(retryData);
-          return;
-        }
-
-        // ③ 正常取得
-        if (!res.ok) {
+        } else if (res.ok) {
+          // ④ 既存ユーザー
+          const data = await res.json();
+          setAppUser(data);
+        } else {
           const text = await res.text().catch(() => "");
-          throw new Error(`アプリ用ユーザー取得失敗: ${res.status} ${text}`);
+          throw new Error(`ユーザー取得失敗: ${res.status} ${text}`);
         }
-
-        const data = await res.json();
-        setAppUser(data);
       } catch (e) {
-        console.error(e);
+        // 404はcatchされない
+        console.error("AuthProvider error:", e);
         setAppUser(null);
       } finally {
-        setLoading(false);
+        if (!didSetLoading) {
+          setLoading(false);
+          didSetLoading = true;
+        }
       }
     });
 
-    // クリーンアップ
     return () => unsubscribe();
   }, [API_BASE]);
 

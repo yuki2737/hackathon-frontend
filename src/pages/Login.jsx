@@ -27,25 +27,8 @@ const Login = () => {
       return;
     }
     try {
-      const userCredential = await createUserWithEmailAndPassword(
-        fireAuth,
-        email,
-        password
-      );
-
-      const uid = userCredential.user.uid;
-
-      await fetch(`${API_BASE}/auth/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          uid,
-          name,
-          email,
-        }),
-      });
-
-      alert("Firebase + MySQL 両方に登録できました！");
+      await createUserWithEmailAndPassword(fireAuth, email, password);
+      alert("Firebaseに登録できました！");
       navigate("/");
     } catch (err) {
       alert("登録に失敗しました: " + err.message);
