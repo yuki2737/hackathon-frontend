@@ -1,61 +1,57 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { fireAuth } from "../firebase/firebase"; // ← 追加！
 import { useAuth } from "../auth/AuthProvider";
 
 const API_BASE = process.env.REACT_APP_API_BASE_URL;
 
 const ProductDetail = () => {
+  const navigate = useNavigate();
   const { id } = useParams();
   const [product, setProduct] = useState(null);
-  const { user } = useAuth();
+  const { firebaseUser, appUser, loading } = useAuth();
 
-  // 🔥 購入処理：ここを修正！
   const handlePurchase = async () => {
-    if (!API_BASE) {
-      alert("API の接続先が設定されていません");
-      return;
-    }
+    if (loading) return;
 
-    if (!user) {
+    if (!firebaseUser) {
       alert("購入にはログインが必要です");
       navigate("/login");
       return;
     }
 
+    if (!appUser) {
+      alert("ユーザー情報を取得中です。少し待ってから再度お試しください");
+      return;
+    }
+
+    if (!API_BASE) {
+      alert("API の接続先が設定されていません");
+      return;
+    }
+
     try {
-      // DBのユーザーID取得
-      const userRes = await fetch(`${API_BASE}/auth/user?uid=${user.uid}`);
-      const dbUser = await userRes.json();
-
-      if (!userRes.ok) {
-        alert("ユーザー情報の取得に失敗しました");
-        return;
-      }
-
       const res = await fetch(`${API_BASE}/orders`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           productId: Number(id),
-          buyerUid: user.uid, // ← MySQL の ID を渡す
+          buyerId: appUser.id,
         }),
       });
 
       const data = await res.json();
-      if (res.ok) {
-        console.log("購入成功:", data);
-        navigate("/purchase-complete");
-      } else {
-        alert("購入に失敗しました: " + data.error);
+
+      if (!res.ok) {
+        alert("購入に失敗しました: " + (data.error || ""));
+        return;
       }
+
+      navigate("/purchase-complete");
     } catch (err) {
       console.error(err);
       alert("購入処理中にエラーが発生しました");
     }
   };
-
-  const navigate = useNavigate();
 
   useEffect(() => {
     fetch(`${API_BASE}/products/${id}`)
@@ -64,7 +60,7 @@ const ProductDetail = () => {
       .catch((err) => console.error(err));
   }, [id]);
 
-  if (!product) return <p>読み込み中...</p>;
+  if (loading || !product) return <p>読み込み中...</p>;
 
   return (
     <div
