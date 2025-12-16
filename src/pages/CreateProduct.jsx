@@ -310,6 +310,7 @@ const CreateProduct = () => {
                 setSelectedFile(null);
                 setPreviewUrl("");
                 setImageUrl("");
+                setUploadError("");
               }}
               style={{
                 position: "absolute",
@@ -355,10 +356,6 @@ const CreateProduct = () => {
             const file = e.target.files?.[0] || null;
             setSelectedFile(file);
             setUploadError("");
-            if (file) {
-              setImageUrl("");
-              setPreviewUrl(URL.createObjectURL(file));
-            }
           }}
           style={{ marginTop: "12px" }}
         />
@@ -391,7 +388,7 @@ const CreateProduct = () => {
       </div>
       {/* Right form column */}
       <div style={{ flex: 1 }}>
-        <h1 style={{ color: "red" }}>【本番確認用】商品を出品</h1>
+        <h1 style={{ marginBottom: "24px" }}>商品を出品</h1>
 
         <section style={{ marginBottom: "20px" }}>
           <label>
