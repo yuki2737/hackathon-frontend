@@ -14,6 +14,9 @@ const ProductDetail = () => {
   const [product, setProduct] = useState(null);
   const { firebaseUser, appUser, loading } = useAuth();
 
+  const [aiDecision, setAiDecision] = useState(null);
+  const [aiLoading, setAiLoading] = useState(false);
+
   const handlePurchase = async () => {
     if (loading) return;
 
@@ -100,9 +103,52 @@ const ProductDetail = () => {
   useEffect(() => {
     fetch(`${API_BASE}/products/${id}`)
       .then((res) => res.json())
-      .then((data) => setProduct(data.product))
+      .then((data) => {
+        setProduct(data.product);
+        if (API_BASE && data.product) {
+          setAiLoading(true);
+          fetch(`${API_BASE}/ai/purchase-decision-support`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              title: data.product.title,
+              category: data.product.category,
+              price: data.product.price,
+              description: data.product.description,
+            }),
+          })
+            .then((res) => res.json())
+            .then((aiData) => {
+              // APIのsuccessラップを考慮して正規化
+              const result =
+                aiData.decision || aiData.result || aiData.evaluation || {};
+              if (!result) {
+                setAiDecision(null);
+                setAiLoading(false);
+                return;
+              }
+
+              setAiDecision({
+                goodPoints: Array.isArray(result.goodPoints)
+                  ? result.goodPoints
+                  : [],
+                decisionPoints: Array.isArray(result.decisionPoints)
+                  ? result.decisionPoints
+                  : [],
+                ambiguousPoints: Array.isArray(result.ambiguousPoints)
+                  ? result.ambiguousPoints
+                  : [],
+              });
+              setAiLoading(false);
+            })
+            .catch((err) => {
+              console.error(err);
+              setAiLoading(false);
+            });
+        }
+      })
       .catch((err) => console.error(err));
-  }, [id]);
+  }, [id, API_BASE]);
 
   if (loading || !product) return <p>読み込み中...</p>;
 
@@ -116,6 +162,7 @@ const ProductDetail = () => {
         display: "block",
         height: "calc(100vh - 120px)",
         position: "relative",
+        background: "linear-gradient(180deg, #fafbfc 0%, #f4f6f8 100%)",
       }}
     >
       {/* 左固定エリア */}
@@ -132,6 +179,7 @@ const ProductDetail = () => {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
+          backgroundColor: "#fafafa",
         }}
       >
         <button
@@ -172,7 +220,7 @@ const ProductDetail = () => {
                 overflow: "hidden",
                 borderRadius: "8px",
                 border: "1px solid #eee",
-                backgroundColor: "#f5f5f5",
+                backgroundColor: "#f0f2f5",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -192,7 +240,7 @@ const ProductDetail = () => {
                 overflow: "hidden",
                 borderRadius: "8px",
                 border: "1px dashed #ccc",
-                backgroundColor: "#f5f5f5",
+                backgroundColor: "#f0f2f5",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -217,6 +265,7 @@ const ProductDetail = () => {
           overflowY: "auto",
           padding: "0 12px 120px",
           boxSizing: "border-box",
+          backgroundColor: "#f7f8fa",
         }}
       >
         <p style={{ marginTop: "4px", fontSize: "13px", color: "#777" }}>
@@ -243,6 +292,124 @@ const ProductDetail = () => {
         >
           {product.description}
         </p>
+
+        {aiLoading && (
+          <p style={{ fontSize: "13px", color: "#777", marginTop: "12px" }}>
+            🤖 AIが購入判断を分析中です…
+          </p>
+        )}
+
+        {aiDecision && (
+          <section
+            style={{
+              border: "1px solid #e6e8eb",
+              borderRadius: "12px",
+              backgroundColor: "#ffffff",
+              padding: "16px 18px",
+              marginTop: "16px",
+              fontSize: "14px",
+              boxShadow: "0 6px 18px rgba(0,0,0,0.06)",
+            }}
+          >
+            <h3
+              style={{
+                marginTop: 0,
+                marginBottom: "12px",
+                fontSize: "15px",
+                fontWeight: "bold",
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+              }}
+            >
+              🤖 AIによる購入判断サポート
+            </h3>
+
+            <p
+              style={{ fontWeight: "bold", color: "#2e7d32", marginTop: "4px" }}
+            >
+              この商品の良い点
+            </p>
+            <ul
+              style={{
+                paddingLeft: "18px",
+                marginTop: "6px",
+                marginBottom: "8px",
+              }}
+            >
+              {aiDecision.goodPoints.length > 0 ? (
+                aiDecision.goodPoints.map((p, i) => (
+                  <li key={`good-${i}`}>{p}</li>
+                ))
+              ) : (
+                <li>特に気になるマイナス要素は見当たりません</li>
+              )}
+            </ul>
+
+            {Array.isArray(aiDecision.decisionPoints) &&
+              aiDecision.decisionPoints.length > 0 && (
+                <>
+                  <p
+                    style={{
+                      fontWeight: "bold",
+                      color: "#1565c0",
+                      marginTop: "10px",
+                    }}
+                  >
+                    購入前に確認したい点
+                  </p>
+                  <ul
+                    style={{
+                      paddingLeft: "18px",
+                      marginTop: "6px",
+                      marginBottom: "8px",
+                    }}
+                  >
+                    {aiDecision.decisionPoints.map((p, i) => (
+                      <li key={`decision-${i}`}>{p}</li>
+                    ))}
+                  </ul>
+                </>
+              )}
+
+            {Array.isArray(aiDecision.ambiguousPoints) &&
+              aiDecision.ambiguousPoints.length > 0 && (
+                <>
+                  <p
+                    style={{
+                      fontWeight: "bold",
+                      color: "#ef6c00",
+                      marginTop: "10px",
+                    }}
+                  >
+                    表現があいまいな点
+                  </p>
+                  <ul
+                    style={{
+                      paddingLeft: "18px",
+                      marginTop: "6px",
+                      marginBottom: "8px",
+                    }}
+                  >
+                    {aiDecision.ambiguousPoints.map((p, i) => (
+                      <li key={`ambiguous-${i}`}>{p}</li>
+                    ))}
+                  </ul>
+                </>
+              )}
+
+            <p
+              style={{
+                fontSize: "12px",
+                color: "#888",
+                marginTop: "12px",
+                lineHeight: "1.4",
+              }}
+            >
+              ※AIが商品情報をもとに購入判断の材料を整理しています
+            </p>
+          </section>
+        )}
       </div>
 
       {/* 出品者に質問する（DM）ボタン */}

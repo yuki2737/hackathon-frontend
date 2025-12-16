@@ -106,6 +106,9 @@ const CreateProduct = () => {
   const [previewUrl, setPreviewUrl] = useState("");
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
+  // AI evaluation state
+  const [aiEvaluation, setAiEvaluation] = useState(null);
+  const [evaluating, setEvaluating] = useState(false);
 
   const promptPresets = [
     "メルカリ向け・丁寧・初心者向け",
@@ -179,7 +182,7 @@ const CreateProduct = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title,
-          price: Number(price),
+          price: Number(price.replace(/,/g, "")),
           imageUrl, // imageUrl は任意
           description,
           category,
@@ -619,8 +622,146 @@ const CreateProduct = () => {
           </p>
         )}
 
+        {aiEvaluation && (
+          <section
+            style={{
+              borderRadius: "8px",
+              padding: "12px",
+              marginBottom: "16px",
+              border:
+                aiEvaluation.riskLevel === "high"
+                  ? "1px solid #d32f2f"
+                  : aiEvaluation.riskLevel === "medium"
+                  ? "1px solid #f57c00"
+                  : "1px solid #388e3c",
+              background:
+                aiEvaluation.riskLevel === "high"
+                  ? "#fdecea"
+                  : aiEvaluation.riskLevel === "medium"
+                  ? "#fff8e1"
+                  : "#e8f5e9",
+            }}
+          >
+            <h3
+              style={{
+                marginBottom: "6px",
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+              }}
+            >
+              {aiEvaluation.riskLevel === "high" && "🚨"}
+              {aiEvaluation.riskLevel === "medium" && "ℹ️"}
+              {aiEvaluation.riskLevel === "low" && "✅"}
+              {aiEvaluation.riskLevel === "medium"
+                ? "AIによる出品内容チェック（参考情報）"
+                : "AIによる出品内容チェック結果"}
+            </h3>
+            <p style={{ fontSize: "12px", color: "#555", marginBottom: "8px" }}>
+              {aiEvaluation.riskLevel === "medium"
+                ? "AIが出品内容を確認し、購入者が迷う可能性のある点を参考情報として整理しました。"
+                : "AIが出品内容を解析し、購入者とのトラブルにつながる可能性を判定しました。"}
+            </p>
+
+            {aiEvaluation.missingInfo?.length > 0 && (
+              <div style={{ marginBottom: "6px" }}>
+                <strong>不足している可能性のある情報</strong>
+                <ul>
+                  {aiEvaluation.missingInfo.map((m, i) => (
+                    <li key={i}>{m}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {aiEvaluation.ambiguousExpressions?.length > 0 && (
+              <div>
+                <strong>曖昧な表現</strong>
+                <ul>
+                  {aiEvaluation.ambiguousExpressions.map((a, i) => (
+                    <li key={i}>{a}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <div style={{ marginTop: "6px", fontSize: "13px" }}>
+              判定結果：
+              <strong
+                style={{
+                  marginLeft: "6px",
+                  color:
+                    aiEvaluation.riskLevel === "high"
+                      ? "#d32f2f"
+                      : aiEvaluation.riskLevel === "medium"
+                      ? "#f57c00"
+                      : "#388e3c",
+                }}
+              >
+                {aiEvaluation.riskLevel === "high"
+                  ? "注意が必要"
+                  : aiEvaluation.riskLevel === "medium"
+                  ? "念のため確認しておくと安心"
+                  : "問題は少なそう"}
+              </strong>
+            </div>
+          </section>
+        )}
+
         <button
-          onClick={handleSubmit}
+          type="button"
+          onClick={async () => {
+            if (!API_BASE) {
+              alert("API の接続先が設定されていません");
+              return;
+            }
+            if (!title || !price || !category || !description) {
+              alert("商品名・価格・カテゴリ・説明文を入力してください");
+              return;
+            }
+            setEvaluating(true);
+            try {
+              const evalRes = await fetch(`${API_BASE}/ai/listing-evaluation`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  title,
+                  category,
+                  price: Number(price.replace(/,/g, "")),
+                  description,
+                }),
+              });
+              const evalData = await evalRes.json();
+              if (evalRes.ok && evalData.success) {
+                setAiEvaluation(evalData.evaluation);
+              } else {
+                alert("AI評価に失敗しました");
+              }
+            } finally {
+              setEvaluating(false);
+            }
+          }}
+          style={{
+            width: "100%",
+            padding: "12px",
+            background: "#ff9800",
+            color: "#fff",
+            border: "none",
+            borderRadius: "8px",
+            fontSize: "14px",
+            fontWeight: "bold",
+            marginBottom: "12px",
+            cursor: "pointer",
+          }}
+        >
+          {evaluating ? "リスク評価中..." : "AIでリスクレベルを評価"}
+        </button>
+
+        <button
+          onClick={() => {
+            const ok = window.confirm("商品を出品しますか？");
+            if (ok) handleSubmit();
+          }}
           disabled={!isFormValid}
           style={{
             width: "100%",
@@ -635,7 +776,7 @@ const CreateProduct = () => {
             opacity: !isFormValid ? 0.6 : 1,
           }}
         >
-          出品する
+          {evaluating ? "AI評価中..." : "出品する"}
         </button>
       </div>
     </div>
