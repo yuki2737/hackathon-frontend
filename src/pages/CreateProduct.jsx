@@ -211,7 +211,6 @@ const CreateProduct = () => {
       return;
     }
     if (uploading) return;
-    if (imageUrl) return;
     if (!selectedFile || !firebaseUser) return;
     if (!selectedFile.type) {
       throw new Error("画像の Content-Type を取得できません");
@@ -333,11 +332,15 @@ const CreateProduct = () => {
             const file = e.target.files?.[0] || null;
             setSelectedFile(file);
             setUploadError("");
+            if (file) {
+              setImageUrl("");
+              setPreviewUrl(URL.createObjectURL(file));
+            }
           }}
           style={{ marginTop: "12px" }}
         />
 
-        {selectedFile && !imageUrl && (
+        {selectedFile && (
           <button
             type="button"
             onClick={handleImageUpload}
