@@ -340,25 +340,27 @@ const CreateProduct = () => {
           style={{ marginTop: "12px" }}
         />
 
-        {selectedFile && (
-          <button
-            type="button"
-            onClick={handleImageUpload}
-            disabled={uploading}
-            style={{
-              marginTop: "8px",
-              padding: "8px 16px",
-              background: "#1976d2",
-              color: "white",
-              border: "none",
-              borderRadius: "6px",
-              cursor: uploading ? "not-allowed" : "pointer",
-              opacity: uploading ? 0.7 : 1,
-            }}
-          >
-            {uploading ? "アップロード中..." : "画像をアップロード"}
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={handleImageUpload}
+          disabled={!selectedFile || uploading}
+          style={{
+            marginTop: "8px",
+            padding: "8px 16px",
+            background: "#1976d2",
+            color: "white",
+            border: "none",
+            borderRadius: "6px",
+            cursor: !selectedFile || uploading ? "not-allowed" : "pointer",
+            opacity: !selectedFile || uploading ? 0.7 : 1,
+          }}
+        >
+          {!selectedFile
+            ? "画像を選択してください"
+            : uploading
+            ? "アップロード中..."
+            : "画像をアップロード"}
+        </button>
 
         {uploadError && (
           <div style={{ color: "red", marginTop: "8px" }}>{uploadError}</div>
