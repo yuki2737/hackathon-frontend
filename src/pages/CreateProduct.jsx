@@ -296,6 +296,7 @@ const CreateProduct = () => {
               borderRadius: "8px",
               border: "1px solid #eee",
               backgroundColor: "#f5f5f5",
+              position: "relative",
             }}
           >
             <img
@@ -303,6 +304,28 @@ const CreateProduct = () => {
               alt="プレビュー"
               style={{ width: "100%", height: "100%", objectFit: "cover" }}
             />
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedFile(null);
+                setPreviewUrl("");
+                setImageUrl("");
+              }}
+              style={{
+                position: "absolute",
+                top: "8px",
+                right: "8px",
+                background: "rgba(0,0,0,0.6)",
+                color: "#fff",
+                border: "none",
+                borderRadius: "4px",
+                padding: "4px 8px",
+                fontSize: "12px",
+                cursor: "pointer",
+              }}
+            >
+              削除
+            </button>
           </div>
         ) : (
           <div
