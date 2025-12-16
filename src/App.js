@@ -14,6 +14,8 @@ import Tabs from "./components/Tabs";
 import PurchaseComplete from "./pages/PurchaseComplete";
 import ProductPreview from "./pages/ProductPreview";
 import FloatingSellButton from "./components/FloatingSellButton";
+import Threads from "./pages/Threads";
+import ThreadDetail from "./pages/ThreadDetail";
 
 function App() {
   return (
@@ -33,6 +35,8 @@ function App() {
           <Route path="/products/:id/edit" element={<EditProduct />} />
           <Route path="/purchase-complete" element={<PurchaseComplete />} />
           <Route path="/products/:id/preview" element={<ProductPreview />} />
+          <Route path="/threads" element={<Threads />} />
+          <Route path="/threads/:threadId" element={<ThreadDetail />} />
         </Routes>
       </div>
       <FloatingSellButton />

@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  CATEGORY_LABELS,
+  SUB_CATEGORY_LABELS,
+} from "../constants/categoryLabels";
 
 const API_BASE = process.env.REACT_APP_API_BASE_URL;
 
@@ -55,9 +59,10 @@ const Home = () => {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(5, 1fr)",
-          gap: "12px",
-          marginTop: "20px",
+          gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
+          gap: "8px",
+          marginTop: "16px",
+          alignItems: "stretch",
         }}
       >
         {products.map((product) => (
@@ -66,40 +71,113 @@ const Home = () => {
             onClick={() => navigate(`/products/${product.id}`)}
             style={{
               border: "1px solid #ccc",
-              padding: "10px",
-              borderRadius: "8px",
+              padding: "8px",
+              borderRadius: "10px",
               cursor: "pointer",
               opacity: product.status === "sold_out" ? 0.5 : 1,
               boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
               position: "relative",
+              minWidth: 0,
             }}
           >
             {product.status === "sold_out" && (
               <div
                 style={{
                   position: "absolute",
-                  top: "8px",
-                  left: "8px",
+                  top: "6px",
+                  left: "6px",
                   backgroundColor: "rgba(230,0,51,0.9)",
                   color: "white",
-                  padding: "4px 8px",
+                  padding: "3px 6px",
                   borderRadius: "4px",
-                  fontSize: "12px",
+                  fontSize: "11px",
                   fontWeight: "bold",
                 }}
               >
                 売り切れ
               </div>
             )}
-            <img
-              src={product.imageUrl || "https://placehold.jp/150x150.png"}
-              alt={product.title}
-              style={{ width: "100%", borderRadius: "8px" }}
-            />
-            <h3 style={{ marginTop: "10px" }}>{product.title}</h3>
-            <p style={{ color: "#e60033", fontWeight: "bold" }}>
+            <div
+              style={{
+                width: "100%",
+                aspectRatio: "1 / 1",
+                overflow: "hidden",
+                borderRadius: "10px",
+                marginBottom: "6px",
+              }}
+            >
+              {product.imageUrl ? (
+                <img
+                  src={product.imageUrl}
+                  alt={product.title}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    display: "block",
+                  }}
+                />
+              ) : (
+                <div
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    background: "#f5f5f5",
+                    color: "#999",
+                    fontSize: "12px",
+                  }}
+                >
+                  画像は登録されていません
+                </div>
+              )}
+            </div>
+            <h3
+              style={{
+                margin: "6px 0 4px",
+                fontSize: "13px",
+                lineHeight: 1.3,
+                display: "-webkit-box",
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: "vertical",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
+              {product.title}
+            </h3>
+            <p
+              style={{
+                color: "#e60033",
+                fontWeight: "bold",
+                margin: 0,
+                fontSize: "13px",
+              }}
+            >
               {product.price}円
             </p>
+            {(product.category || product.subCategory) && (
+              <p
+                style={{
+                  margin: "4px 0 0",
+                  fontSize: "12px",
+                  color: "#666",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+              >
+                {CATEGORY_LABELS[product.category] ?? product.category}
+                {product.subCategory
+                  ? ` / ${
+                      SUB_CATEGORY_LABELS[product.subCategory] ??
+                      product.subCategory
+                    }`
+                  : ""}
+              </p>
+            )}
           </div>
         ))}
       </div>

@@ -34,10 +34,10 @@ const Tabs = () => {
         カテゴリ/検索
       </Link>
       <Link
-        to="/ranking"
-        style={location.pathname === "/ranking" ? activeStyle : {}}
+        to="/threads"
+        style={location.pathname === "/threads" ? activeStyle : {}}
       >
-        ランキング
+        DM一覧
       </Link>
       <Link
         to="/mypage"

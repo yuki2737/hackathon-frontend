@@ -122,11 +122,35 @@ const MyPage = () => {
                   SOLD OUT
                 </div>
               )}
-              <img
-                src={product.imageUrl || "https://placehold.jp/150x150.png"}
-                alt={product.title}
-                style={{ width: "100%", borderRadius: "8px" }}
-              />
+              {product.imageUrl ? (
+                <img
+                  src={product.imageUrl}
+                  alt={product.title}
+                  style={{
+                    width: "100%",
+                    aspectRatio: "1 / 1",
+                    objectFit: "cover",
+                    borderRadius: "8px",
+                  }}
+                />
+              ) : (
+                <div
+                  style={{
+                    width: "100%",
+                    aspectRatio: "1 / 1",
+                    border: "1px dashed #ccc",
+                    borderRadius: "8px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: "#888",
+                    fontSize: "12px",
+                    background: "#fafafa",
+                  }}
+                >
+                  画像は登録されていません
+                </div>
+              )}
               <h3 style={{ marginTop: "10px" }}>{product.title}</h3>
               <p style={{ color: "#e60033", fontWeight: "bold" }}>
                 {product.price}円

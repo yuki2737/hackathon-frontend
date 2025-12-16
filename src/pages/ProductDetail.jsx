@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthProvider";
+import {
+  CATEGORY_LABELS,
+  SUB_CATEGORY_LABELS,
+} from "../constants/categoryLabels";
 
 const API_BASE = process.env.REACT_APP_API_BASE_URL;
 
@@ -56,6 +60,43 @@ const ProductDetail = () => {
     }
   };
 
+  const handleCreateThread = async () => {
+    if (!firebaseUser) {
+      alert("ログインすると出品者に質問できます");
+      navigate("/login");
+      return;
+    }
+    if (!product?.user?.uid) {
+      alert("出品者情報を取得できませんでした");
+      return;
+    }
+    if (!API_BASE) {
+      alert("API の接続先が設定されていません");
+      return;
+    }
+    try {
+      const res = await fetch(`${API_BASE}/threads`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productId: Number(id),
+          buyerUid: firebaseUser.uid,
+          sellerUid: product.user.uid,
+          type: "inquiry",
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.error || "スレッド作成に失敗しました");
+        return;
+      }
+      navigate(`/threads/${data.thread.id}`);
+    } catch (err) {
+      console.error(err);
+      alert("スレッド作成中にエラーが発生しました");
+    }
+  };
+
   useEffect(() => {
     fetch(`${API_BASE}/products/${id}`)
       .then((res) => res.json())
@@ -64,6 +105,10 @@ const ProductDetail = () => {
   }, [id]);
 
   if (loading || !product) return <p>読み込み中...</p>;
+
+  // 判定: この商品が自分のものか
+  const isMyProduct =
+    firebaseUser && product?.user?.uid && firebaseUser.uid === product.user.uid;
 
   return (
     <div
@@ -96,9 +141,11 @@ const ProductDetail = () => {
           ← 戻る
         </button>
 
-        <h1 style={{ textAlign: "center" }}>{product.title}</h1>
+        <h1 style={{ textAlign: "center", fontSize: "18px" }}>
+          {product.title}
+        </h1>
 
-        <div style={{ width: "100%", position: "relative", marginTop: "10px" }}>
+        <div style={{ width: "70%", position: "relative", marginTop: "6px" }}>
           {product.status === "sold_out" && (
             <div
               style={{
@@ -117,11 +164,45 @@ const ProductDetail = () => {
               売り切れ
             </div>
           )}
-          <img
-            src={product.imageUrl || "https://placehold.jp/300x300.png"}
-            alt={product.title}
-            style={{ width: "100%", maxHeight: "45vh", objectFit: "contain" }}
-          />
+          {product.imageUrl ? (
+            <div
+              style={{
+                width: "100%",
+                aspectRatio: "1 / 1",
+                overflow: "hidden",
+                borderRadius: "8px",
+                border: "1px solid #eee",
+                backgroundColor: "#f5f5f5",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <img
+                src={product.imageUrl}
+                alt={product.title}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+            </div>
+          ) : (
+            <div
+              style={{
+                width: "100%",
+                aspectRatio: "1 / 1",
+                overflow: "hidden",
+                borderRadius: "8px",
+                border: "1px dashed #ccc",
+                backgroundColor: "#f5f5f5",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#777",
+                fontSize: "14px",
+              }}
+            >
+              画像は登録されていません
+            </div>
+          )}
         </div>
       </div>
 
@@ -132,45 +213,119 @@ const ProductDetail = () => {
           right: 0,
           top: "110px",
           width: "50%",
-          height: "calc(100vh - 120px)",
+          height: "calc(100vh - 180px)",
           overflowY: "auto",
-          padding: "0 16px 80px",
+          padding: "0 12px 120px",
           boxSizing: "border-box",
         }}
       >
-        <p style={{ marginTop: "6px", fontSize: "14px", color: "#555" }}>
-          カテゴリ: {product.category} / 状態: {product.status}
+        <p style={{ marginTop: "4px", fontSize: "13px", color: "#777" }}>
+          {CATEGORY_LABELS[product.category] || product.category}
+          {product.subCategory && (
+            <>
+              {" / "}
+              {SUB_CATEGORY_LABELS[product.subCategory] || product.subCategory}
+            </>
+          )}
         </p>
 
-        <h2 style={{ marginTop: "15px", color: "#e60033" }}>
+        <h2 style={{ marginTop: "10px", color: "#e60033", fontSize: "18px" }}>
           {product.price}円
         </h2>
 
-        <p style={{ marginTop: "10px", whiteSpace: "pre-line" }}>
+        <p
+          style={{
+            marginTop: "10px",
+            whiteSpace: "pre-line",
+            fontSize: "13px",
+            lineHeight: "1.5",
+          }}
+        >
           {product.description}
         </p>
       </div>
 
+      {/* 出品者に質問する（DM）ボタン */}
+      {(() => {
+        const isMyProduct =
+          firebaseUser &&
+          product?.user?.uid &&
+          firebaseUser.uid === product.user.uid;
+        if (!isMyProduct) {
+          return (
+            <button
+              onClick={handleCreateThread}
+              disabled={!firebaseUser}
+              style={{
+                position: "fixed",
+                left: 0,
+                bottom: "64px",
+                width: "100%",
+                backgroundColor: "#333",
+                color: "white",
+                border: "none",
+                padding: "14px 0",
+                fontSize: "15px",
+                cursor: "pointer",
+                zIndex: 1999,
+              }}
+            >
+              出品者に質問する
+            </button>
+          );
+        } else {
+          return (
+            <button
+              disabled={true}
+              style={{
+                position: "fixed",
+                left: 0,
+                bottom: "64px",
+                width: "100%",
+                backgroundColor: "#aaa",
+                color: "white",
+                border: "none",
+                padding: "14px 0",
+                fontSize: "15px",
+                cursor: "not-allowed",
+                zIndex: 1999,
+              }}
+            >
+              自分の商品には質問できません
+            </button>
+          );
+        }
+      })()}
       {/* 画面下の購入ボタン（全幅固定） */}
       <button
-        onClick={product.status === "sold_out" ? null : handlePurchase}
-        disabled={product.status === "sold_out"}
+        onClick={
+          isMyProduct || product.status === "sold_out" ? null : handlePurchase
+        }
+        disabled={isMyProduct || product.status === "sold_out"}
         style={{
           position: "fixed",
           left: 0,
           bottom: 0,
           width: "100%",
-          backgroundColor: product.status === "sold_out" ? "#aaa" : "#e60033",
+          backgroundColor:
+            isMyProduct || product.status === "sold_out" ? "#aaa" : "#e60033",
           color: "white",
           border: "none",
           padding: "16px 0",
           fontSize: "18px",
-          cursor: product.status === "sold_out" ? "not-allowed" : "pointer",
-          opacity: product.status === "sold_out" ? 0.6 : 1,
+          cursor:
+            isMyProduct || product.status === "sold_out"
+              ? "not-allowed"
+              : "pointer",
+          opacity: isMyProduct || product.status === "sold_out" ? 0.6 : 1,
           zIndex: 2000,
         }}
       >
-        {product.status === "sold_out" ? "売り切れ" : "購入する"}
+        {isMyProduct
+          ? "自分の商品は購入できません"
+          : product.status === "sold_out"
+          ? "売り切れ"
+          : "購入する"}
       </button>
     </div>
   );
