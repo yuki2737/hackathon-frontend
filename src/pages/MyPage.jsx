@@ -153,7 +153,7 @@ const MyPage = () => {
               )}
               <h3 style={{ marginTop: "10px" }}>{product.title}</h3>
               <p style={{ color: "#e60033", fontWeight: "bold" }}>
-                {product.price}円
+                {Number(product.price).toLocaleString("ja-JP")}円
               </p>
               {/* ▼ 出品日を表示 */}
               <small style={{ color: "#555" }}>

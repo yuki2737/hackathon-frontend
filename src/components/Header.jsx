@@ -78,7 +78,7 @@ const Header = () => {
               fontWeight: "bold",
             }}
           >
-            {firebaseUser.email} さん
+            {firebaseUser.displayName || firebaseUser.email} さん
           </span>
         )}
         {firebaseUser ? (

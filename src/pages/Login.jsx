@@ -3,6 +3,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
+  updateProfile,
 } from "firebase/auth";
 import { fireAuth } from "../firebase/firebase";
 import { useNavigate } from "react-router-dom";
@@ -35,6 +36,11 @@ const Login = () => {
       );
 
       const uid = userCredential.user.uid;
+
+      // Firebase Auth に displayName を設定
+      await updateProfile(userCredential.user, {
+        displayName: name,
+      });
 
       const res = await fetch(`${API_BASE}/auth/register`, {
         method: "POST",

@@ -13,35 +13,86 @@ const Tabs = () => {
     <nav
       style={{
         display: "flex",
-        justifyContent: "space-around",
-        borderTop: "1px solid #ddd",
-        padding: "10px 0",
+        justifyContent: "space-between",
+        alignItems: "center",
+        borderBottom: "1px solid #e5e5e5",
         position: "fixed",
         top: 70,
-        background: "white",
-        zIndex: 10,
+        left: 0,
         width: "100%",
+        backgroundColor: "#ffffff",
         zIndex: 1000,
+        height: 44,
       }}
     >
-      <Link to="/" style={location.pathname === "/" ? activeStyle : {}}>
+      <Link
+        to="/"
+        style={{
+          flex: 1,
+          textAlign: "center",
+          lineHeight: "44px",
+          textDecoration: "none",
+          color: location.pathname === "/" ? "#e60033" : "#555",
+          fontWeight: location.pathname === "/" ? "600" : "400",
+          borderBottom:
+            location.pathname === "/"
+              ? "2px solid #e60033"
+              : "2px solid transparent",
+        }}
+      >
         ホーム
       </Link>
+
       <Link
         to="/search"
-        style={location.pathname === "/search" ? activeStyle : {}}
+        style={{
+          flex: 1,
+          textAlign: "center",
+          lineHeight: "44px",
+          textDecoration: "none",
+          color: location.pathname === "/search" ? "#e60033" : "#555",
+          fontWeight: location.pathname === "/search" ? "600" : "400",
+          borderBottom:
+            location.pathname === "/search"
+              ? "2px solid #e60033"
+              : "2px solid transparent",
+        }}
       >
         カテゴリ/検索
       </Link>
+
       <Link
         to="/threads"
-        style={location.pathname === "/threads" ? activeStyle : {}}
+        style={{
+          flex: 1,
+          textAlign: "center",
+          lineHeight: "44px",
+          textDecoration: "none",
+          color: location.pathname === "/threads" ? "#e60033" : "#555",
+          fontWeight: location.pathname === "/threads" ? "600" : "400",
+          borderBottom:
+            location.pathname === "/threads"
+              ? "2px solid #e60033"
+              : "2px solid transparent",
+        }}
       >
         DM一覧
       </Link>
+
       <Link
         to="/mypage"
-        style={location.pathname === "/mypage" ? activeStyle : {}}
+        style={{
+          flex: 1,
+          textAlign: "center",
+          lineHeight: "44px",
+          textDecoration: "none",
+          color: location.pathname === "/mypage" ? "#e60033" : "#555",
+          fontWeight: location.pathname === "/mypage" ? "600" : "400",
+          borderBottom:
+            location.pathname === "/mypage"
+              ? "2px solid #e60033"
+              : "2px solid transparent",
+        }}
       >
         マイページ
       </Link>

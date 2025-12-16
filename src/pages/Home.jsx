@@ -156,7 +156,7 @@ const Home = () => {
                 fontSize: "13px",
               }}
             >
-              {product.price}円
+              {Number(product.price).toLocaleString("ja-JP")}円
             </p>
             {(product.category || product.subCategory) && (
               <p

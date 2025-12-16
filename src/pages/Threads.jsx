@@ -95,39 +95,53 @@ const Threads = () => {
             onMouseEnter={(e) => (e.currentTarget.style.background = "#fafafa")}
             onMouseLeave={(e) => (e.currentTarget.style.background = "#fff")}
           >
-            {/* 商品画像 */}
+            {/* 商品カード（画像＋商品名） */}
             <div
               style={{
-                width: "56px",
-                height: "56px",
-                borderRadius: "8px",
-                overflow: "hidden",
-                background: "#f5f5f5",
+                width: "84px",
                 flexShrink: 0,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: "6px",
               }}
             >
-              {t.product?.imageUrl ? (
-                <img
-                  src={t.product.imageUrl}
-                  alt=""
-                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                />
-              ) : (
-                <div
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    fontSize: "12px",
-                    color: "#999",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    textAlign: "center",
-                  }}
-                >
-                  No Image
-                </div>
-              )}
+              <div
+                style={{
+                  width: "72px",
+                  height: "72px",
+                  borderRadius: "8px",
+                  overflow: "hidden",
+                  background: "#f5f5f5",
+                }}
+              >
+                {t.productImageUrl || t.product?.imageUrl ? (
+                  <img
+                    src={t.productImageUrl || t.product?.imageUrl}
+                    alt=""
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                    }}
+                  />
+                ) : (
+                  <div
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      fontSize: "12px",
+                      color: "#999",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      textAlign: "center",
+                    }}
+                  >
+                    No Image
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* テキスト */}
@@ -139,7 +153,7 @@ const Threads = () => {
                   marginBottom: "4px",
                 }}
               >
-                {t.product?.title || "商品"}
+                {t.productTitle || t.product?.title || "商品"}
               </div>
 
               <div

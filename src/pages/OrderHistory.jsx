@@ -97,7 +97,7 @@ const OrderHistory = () => {
                 商品名: {order.product?.title}
               </h3>
               <p style={{ color: "#e60033", fontWeight: "bold" }}>
-                料金: {order.product?.price}円
+                料金: {order.product?.price?.toLocaleString("ja-JP")}円
               </p>
               <small>
                 購入日: {new Date(order.purchasedAt).toLocaleDateString()}

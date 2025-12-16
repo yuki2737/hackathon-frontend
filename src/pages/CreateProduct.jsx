@@ -410,9 +410,18 @@ const CreateProduct = () => {
             <span style={{ color: "red", marginLeft: 4 }}>*</span>
           </label>
           <input
-            type="number"
+            type="text"
+            inputMode="numeric"
+            placeholder="例：1,500"
             value={price}
-            onChange={(e) => setPrice(e.target.value)}
+            onChange={(e) => {
+              const raw = e.target.value.replace(/,/g, "");
+              if (!/^\d*$/.test(raw)) return;
+
+              const formatted = raw ? Number(raw).toLocaleString("ja-JP") : "";
+
+              setPrice(formatted);
+            }}
             style={{ width: "100%", padding: "8px", marginTop: "6px" }}
           />
         </section>
