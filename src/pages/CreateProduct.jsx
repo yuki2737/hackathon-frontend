@@ -391,7 +391,7 @@ const CreateProduct = () => {
       </div>
       {/* Right form column */}
       <div style={{ flex: 1 }}>
-        <h1 style={{ marginBottom: "24px" }}>商品を出品</h1>
+        <h1 style={{ color: "red" }}>【本番確認用】商品を出品</h1>
 
         <section style={{ marginBottom: "20px" }}>
           <label>
