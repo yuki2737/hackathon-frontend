@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthProvider";
 
 const API_BASE = process.env.REACT_APP_API_BASE_URL;
-const AI_BASE = process.env.REACT_APP_AI_BASE_URL || "http://127.0.0.1:8000";
+const AI_BASE =
+  process.env.REACT_APP_AI_BASE_URL || process.env.REACT_APP_API_BASE_URL;
 
 const SUB_CATEGORIES = {
   fashion: [
@@ -230,16 +231,14 @@ const CreateProduct = () => {
 
     try {
       // 直接FastAPIエンドポイントへリクエスト
-      const res = await fetch(`${AI_BASE}/ai/image-text-check`, {
+      const res = await fetch(`${API_BASE}/ai/image-text-check`, {
         method: "POST",
         body: formData,
       });
       if (!res.ok) {
         const text = await res.text();
         console.error("AI API error response:", text);
-        throw new Error(
-          "画像AIサーバー（解析用）との通信に失敗しました。起動状態を確認してください。"
-        );
+        throw new Error("画像AI解析APIとの通信に失敗しました。");
       }
 
       const contentType = res.headers.get("content-type") || "";
