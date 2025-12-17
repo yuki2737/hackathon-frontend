@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthProvider";
 
 const API_BASE = process.env.REACT_APP_API_BASE_URL;
+const AI_BASE = process.env.REACT_APP_AI_BASE_URL || "http://127.0.0.1:8000";
 
 const SUB_CATEGORIES = {
   fashion: [
@@ -110,6 +111,10 @@ const CreateProduct = () => {
   const [aiEvaluation, setAiEvaluation] = useState(null);
   const [evaluating, setEvaluating] = useState(false);
 
+  // Image AI (CLIP) check state
+  const [imageAiResult, setImageAiResult] = useState(null);
+  const [checkingImageAi, setCheckingImageAi] = useState(false);
+
   const promptPresets = [
     "メルカリ向け・丁寧・初心者向け",
     "即売れ重視・短め・カジュアル",
@@ -203,6 +208,54 @@ const CreateProduct = () => {
     } catch (err) {
       console.error(err);
       alert(err.message || "出品に失敗しました");
+    }
+  };
+
+  // 画像AIチェック（CLIP）
+  const handleImageAiCheck = async () => {
+    if (!AI_BASE) {
+      alert("API の接続先が設定されていません");
+      return;
+    }
+    if (!selectedFile) {
+      alert("画像をアップロードしてください");
+      return;
+    }
+
+    setCheckingImageAi(true);
+
+    const formData = new FormData();
+    formData.append("image", selectedFile);
+    formData.append("description", description || "");
+
+    try {
+      // 直接FastAPIエンドポイントへリクエスト
+      const res = await fetch(`${AI_BASE}/ai/image-text-check`, {
+        method: "POST",
+        body: formData,
+      });
+      if (!res.ok) {
+        const text = await res.text();
+        console.error("AI API error response:", text);
+        throw new Error(
+          "画像AIサーバー（解析用）との通信に失敗しました。起動状態を確認してください。"
+        );
+      }
+
+      const contentType = res.headers.get("content-type") || "";
+      if (!contentType.includes("application/json")) {
+        const text = await res.text();
+        console.error("Unexpected response:", text);
+        throw new Error("AIサーバーから不正なレスポンスが返されました");
+      }
+
+      const data = await res.json();
+      setImageAiResult(data.image_findings || []);
+      console.log("Image AI raw response:", data);
+    } catch (e) {
+      alert(e.message || "画像AIチェックに失敗しました");
+    } finally {
+      setCheckingImageAi(false);
     }
   };
 
@@ -384,6 +437,46 @@ const CreateProduct = () => {
             ? "アップロード中..."
             : "画像をアップロード"}
         </button>
+
+        <button
+          type="button"
+          onClick={handleImageAiCheck}
+          disabled={!selectedFile || checkingImageAi}
+          style={{
+            marginTop: "8px",
+            padding: "8px 16px",
+            background: "#6f42c1",
+            color: "white",
+            border: "none",
+            borderRadius: "6px",
+            cursor:
+              !selectedFile || checkingImageAi ? "not-allowed" : "pointer",
+            opacity: !selectedFile || checkingImageAi ? 0.7 : 1,
+          }}
+        >
+          {checkingImageAi ? "AI解析中..." : "🤖 画像AIチェック"}
+        </button>
+
+        {imageAiResult && (
+          <div style={{ marginTop: "12px", width: "100%" }}>
+            <h4 style={{ marginBottom: "6px" }}>🤖 画像AIチェック結果</h4>
+            <ul style={{ fontSize: "13px", paddingLeft: "18px" }}>
+              {[...imageAiResult]
+                .sort((a, b) => b.score - a.score)
+                .map((r, i) => (
+                  <li key={i}>
+                    {r.score > 0.18 ? "⚠️" : "ℹ️"} {r.text}
+                    <span style={{ marginLeft: "6px", color: "#666" }}>
+                      ({r.score.toFixed(2)})
+                    </span>
+                  </li>
+                ))}
+            </ul>
+            <p style={{ fontSize: "11px", color: "#777" }}>
+              ※ 数値はAIによる参考スコアです
+            </p>
+          </div>
+        )}
 
         {uploadError && (
           <div style={{ color: "red", marginTop: "8px" }}>{uploadError}</div>
