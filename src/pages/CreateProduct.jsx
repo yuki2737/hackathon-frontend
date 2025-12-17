@@ -231,7 +231,7 @@ const CreateProduct = () => {
 
     try {
       // 直接FastAPIエンドポイントへリクエスト
-      const res = await fetch(`${API_BASE}/ai/image-text-check`, {
+      const res = await fetch(`${API_BASE}/ai/image-text-consistency`, {
         method: "POST",
         body: formData,
       });
