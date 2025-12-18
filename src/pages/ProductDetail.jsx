@@ -159,16 +159,14 @@ const ProductDetail = () => {
   return (
     <div
       style={{
-        display: "block",
-        height: "calc(100vh - 120px)",
-        position: "relative",
-        background: "linear-gradient(180deg, #fafbfc 0%, #f4f6f8 100%)",
+        minHeight: "100vh",
+        backgroundColor: "#ffffff",
       }}
     >
       {/* 左固定エリア */}
       <div
         style={{
-          width: "50%",
+          width: "48%",
           height: "calc(100vh - 120px)",
           position: "fixed",
           top: "120px",
@@ -179,7 +177,7 @@ const ProductDetail = () => {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          backgroundColor: "#fafafa",
+          backgroundColor: "#ffffff",
         }}
       >
         <button
@@ -189,7 +187,9 @@ const ProductDetail = () => {
           ← 戻る
         </button>
 
-        <h1 style={{ textAlign: "center", fontSize: "18px" }}>
+        <h1
+          style={{ textAlign: "center", fontSize: "20px", fontWeight: "bold" }}
+        >
           {product.title}
         </h1>
 
@@ -260,38 +260,108 @@ const ProductDetail = () => {
           position: "absolute",
           right: 0,
           top: "110px",
-          width: "50%",
-          height: "calc(100vh - 180px)",
+          width: "52%",
+          height: "calc(100vh - 110px)",
+          minHeight: "calc(100vh - 110px)",
           overflowY: "auto",
           padding: "0 12px 120px",
           boxSizing: "border-box",
-          backgroundColor: "#f7f8fa",
+          backgroundColor: "#ffffff",
         }}
       >
-        <p style={{ marginTop: "4px", fontSize: "13px", color: "#777" }}>
-          {CATEGORY_LABELS[product.category] || product.category}
-          {product.subCategory && (
-            <>
-              {" / "}
-              {SUB_CATEGORY_LABELS[product.subCategory] || product.subCategory}
-            </>
-          )}
-        </p>
+        <div
+          style={{
+            marginTop: "12px",
+            marginBottom: "8px",
+            display: "flex",
+            gap: "8px",
+            flexWrap: "wrap",
+          }}
+        >
+          <span
+            style={{
+              padding: "4px 10px",
+              fontSize: "12px",
+              borderRadius: "999px",
+              backgroundColor: "#e3f2fd",
+              color: "#1565c0",
+              fontWeight: "bold",
+            }}
+          >
+            {CATEGORY_LABELS[product.category] || product.category}
+          </span>
 
-        <h2 style={{ marginTop: "10px", color: "#e60033", fontSize: "18px" }}>
+          {product.subCategory && (
+            <span
+              style={{
+                padding: "4px 10px",
+                fontSize: "12px",
+                borderRadius: "999px",
+                backgroundColor: "#f1f8e9",
+                color: "#2e7d32",
+                fontWeight: "bold",
+              }}
+            >
+              {SUB_CATEGORY_LABELS[product.subCategory] || product.subCategory}
+            </span>
+          )}
+        </div>
+
+        <h2
+          style={{
+            marginTop: "10px",
+            color: "#d32f2f",
+            fontSize: "18px",
+            fontWeight: "bold",
+          }}
+        >
           {product.price}円
         </h2>
 
-        <p
+        <section
           style={{
-            marginTop: "10px",
-            whiteSpace: "pre-line",
-            fontSize: "13px",
-            lineHeight: "1.5",
+            marginTop: "14px",
+            border: "1px solid #e6e8eb",
+            borderRadius: "12px",
+            backgroundColor: "#ffffff",
+            padding: "14px 16px",
+            boxShadow: "0 4px 14px rgba(0,0,0,0.04)",
           }}
         >
-          {product.description}
-        </p>
+          <div
+            style={{
+              fontSize: "13px",
+              fontWeight: "bold",
+              color: "#333",
+              marginBottom: "8px",
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+            }}
+          >
+            <span
+              style={{
+                width: "8px",
+                height: "8px",
+                borderRadius: "999px",
+                backgroundColor: "#d32f2f",
+                display: "inline-block",
+              }}
+            />
+            商品説明
+          </div>
+          <p
+            style={{
+              margin: 0,
+              whiteSpace: "pre-line",
+              fontSize: "14px",
+              lineHeight: "1.7",
+              color: "#222",
+            }}
+          >
+            {product.description}
+          </p>
+        </section>
 
         {aiLoading && (
           <p style={{ fontSize: "13px", color: "#777", marginTop: "12px" }}>
@@ -419,25 +489,35 @@ const ProductDetail = () => {
           product?.user?.uid &&
           firebaseUser.uid === product.user.uid;
         if (!isMyProduct) {
+          const isSoldOut = product.status === "sold_out";
+          const disabled = !firebaseUser || isSoldOut;
           return (
             <button
-              onClick={handleCreateThread}
-              disabled={!firebaseUser}
+              onClick={disabled ? null : handleCreateThread}
+              disabled={disabled}
               style={{
                 position: "fixed",
-                left: 0,
+                width: "50%",
+                left: "50%",
                 bottom: "64px",
-                width: "100%",
-                backgroundColor: "#333",
-                color: "white",
-                border: "none",
                 padding: "14px 0",
                 fontSize: "15px",
-                cursor: "pointer",
+                transform: "translateX(-50%)",
+                backgroundColor: disabled ? "#b0b0b0" : "#1976d2",
+                color: "white",
+                border: "none",
+                cursor: disabled ? "not-allowed" : "pointer",
                 zIndex: 1999,
+                borderTopLeftRadius: "12px",
+                borderTopRightRadius: "12px",
+                opacity: disabled ? 0.75 : 1,
               }}
             >
-              出品者に質問する
+              {!firebaseUser
+                ? "ログインすると出品者に質問できます"
+                : isSoldOut
+                ? "売り切れのため質問できません"
+                : "出品者に質問する"}
             </button>
           );
         } else {
@@ -446,14 +526,15 @@ const ProductDetail = () => {
               disabled={true}
               style={{
                 position: "fixed",
-                left: 0,
+                width: "50%",
+                left: "50%",
                 bottom: "64px",
-                width: "100%",
-                backgroundColor: "#aaa",
-                color: "white",
-                border: "none",
                 padding: "14px 0",
                 fontSize: "15px",
+                transform: "translateX(-50%)",
+                backgroundColor: "#b0b0b0",
+                color: "white",
+                border: "none",
                 cursor: "not-allowed",
                 zIndex: 1999,
               }}
@@ -466,26 +547,34 @@ const ProductDetail = () => {
       {/* 画面下の購入ボタン（全幅固定） */}
       <button
         onClick={
-          isMyProduct || product.status === "sold_out" ? null : handlePurchase
+          isMyProduct || product.status === "sold_out"
+            ? null
+            : () => {
+                const ok = window.confirm("この商品を購入しますか？");
+                if (ok) handlePurchase();
+              }
         }
         disabled={isMyProduct || product.status === "sold_out"}
         style={{
           position: "fixed",
-          left: 0,
+          width: "50%",
+          left: "50%",
           bottom: 0,
-          width: "100%",
-          backgroundColor:
-            isMyProduct || product.status === "sold_out" ? "#aaa" : "#e60033",
-          color: "white",
-          border: "none",
           padding: "16px 0",
           fontSize: "18px",
+          transform: "translateX(-50%)",
+          backgroundColor:
+            isMyProduct || product.status === "sold_out" ? "#aaa" : "#d32f2f",
+          color: "white",
+          border: "none",
           cursor:
             isMyProduct || product.status === "sold_out"
               ? "not-allowed"
               : "pointer",
           opacity: isMyProduct || product.status === "sold_out" ? 0.6 : 1,
           zIndex: 2000,
+          borderTopLeftRadius: "12px",
+          borderTopRightRadius: "12px",
         }}
       >
         {isMyProduct

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 const formatNumber = (value) => {
@@ -122,6 +122,14 @@ export default function Search() {
   const [input, setInput] = useState({ ...searchParams });
 
   const [results, setResults] = useState([]);
+
+  useEffect(() => {
+    // 初回表示時に全商品を取得
+    fetch(`${API_BASE}/products`)
+      .then((res) => res.json())
+      .then((data) => setResults(data.products || []))
+      .catch(console.error);
+  }, []);
 
   const onSearch = () => {
     const qs = new URLSearchParams();
