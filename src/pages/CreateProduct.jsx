@@ -249,7 +249,22 @@ const CreateProduct = () => {
       }
 
       const data = await res.json();
-      setImageAiResult(data.image_findings || []);
+      if (
+        Array.isArray(data.image_findings) &&
+        data.image_findings.length > 0
+      ) {
+        setImageAiResult(data.image_findings);
+      } else if (data.raw) {
+        // rawテキストのみ返ってきた場合はスコア1.0として表示
+        setImageAiResult([
+          {
+            text: data.raw,
+            score: 1.0,
+          },
+        ]);
+      } else {
+        setImageAiResult([]);
+      }
       console.log("Image AI raw response:", data);
     } catch (e) {
       alert(e.message || "画像AIチェックに失敗しました");
