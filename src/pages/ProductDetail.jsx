@@ -7,8 +7,6 @@ import {
 } from "../constants/categoryLabels";
 
 const API_BASE = process.env.REACT_APP_API_BASE_URL;
-const IMAGE_AI_BASE =
-  process.env.REACT_APP_IMAGE_AI_BASE_URL || "http://127.0.0.1:8000";
 
 const ProductDetail = () => {
   const navigate = useNavigate();
@@ -17,9 +15,6 @@ const ProductDetail = () => {
   const { firebaseUser, appUser, loading } = useAuth();
 
   const [aiDecision, setAiDecision] = useState(null);
-  const [imageAiResult, setImageAiResult] = useState(null);
-  const [imageAiLoading, setImageAiLoading] = useState(false);
-  const [imageAiError, setImageAiError] = useState(null);
   const [aiLoading, setAiLoading] = useState(false);
 
   const handlePurchase = async () => {
@@ -110,57 +105,6 @@ const ProductDetail = () => {
       .then((res) => res.json())
       .then((data) => {
         setProduct(data.product);
-        if (data.product?.imageUrl) {
-          setImageAiLoading(true);
-          setImageAiError(null);
-
-          // NOTE: 画像URLは <img> では表示できても、fetch() だと CORS で落ちることがあります。
-          // その場合は、バックエンド(8080)にプロキシを作ってサーバー側で画像を取得する方式に切り替えてください。
-          fetch(data.product.imageUrl)
-            .then((res) => {
-              if (!res.ok) throw new Error(`image fetch failed: ${res.status}`);
-              return res.blob();
-            })
-            .then((blob) => {
-              const file = new File([blob], "product.jpg", { type: blob.type });
-              const formData = new FormData();
-              formData.append("image", file);
-              formData.append("description", data.product.description || "");
-
-              return fetch(`${IMAGE_AI_BASE}/ai/image-text-check`, {
-                method: "POST",
-                body: formData,
-              });
-            })
-            .then(async (res) => {
-              const text = await res.text();
-              let json;
-              try {
-                json = JSON.parse(text);
-              } catch {
-                throw new Error(
-                  `image ai returned non-json (status ${res.status})`
-                );
-              }
-              if (!res.ok) {
-                throw new Error(
-                  json?.detail || json?.error || "image ai request failed"
-                );
-              }
-              return json;
-            })
-            .then((result) => {
-              setImageAiResult(result);
-              setImageAiLoading(false);
-            })
-            .catch((err) => {
-              console.error("image ai error", err);
-              setImageAiError(
-                err?.message || "画像AIサーバーとの通信に失敗しました"
-              );
-              setImageAiLoading(false);
-            });
-        }
         if (API_BASE && data.product) {
           setAiLoading(true);
           fetch(`${API_BASE}/ai/purchase-decision-support`, {
@@ -348,56 +292,6 @@ const ProductDetail = () => {
         >
           {product.description}
         </p>
-
-        {imageAiLoading && (
-          <p style={{ fontSize: "13px", color: "#777", marginTop: "12px" }}>
-            🖼️ AIが画像から商品の状態を確認しています…
-          </p>
-        )}
-        {imageAiError && (
-          <p style={{ fontSize: "13px", color: "#c62828", marginTop: "12px" }}>
-            🖼️ {imageAiError}
-          </p>
-        )}
-
-        {imageAiResult && Array.isArray(imageAiResult.image_findings) && (
-          <section
-            style={{
-              border: "1px solid #e6e8eb",
-              borderRadius: "12px",
-              backgroundColor: "#ffffff",
-              padding: "14px 16px",
-              marginTop: "16px",
-              fontSize: "14px",
-            }}
-          >
-            <h3
-              style={{
-                marginTop: 0,
-                marginBottom: "10px",
-                fontSize: "15px",
-                fontWeight: "bold",
-              }}
-            >
-              🖼️ AIによる画像チェック結果
-            </h3>
-
-            <ul style={{ paddingLeft: "18px", margin: 0 }}>
-              {imageAiResult.image_findings
-                .filter((f) => f.score >= 0.17)
-                .slice(0, 5)
-                .map((f, i) => (
-                  <li key={i} style={{ marginBottom: "6px" }}>
-                    {f.text}
-                  </li>
-                ))}
-            </ul>
-
-            <p style={{ fontSize: "12px", color: "#888", marginTop: "10px" }}>
-              ※ 写真から確認できる範囲で、商品の状態を前向きに整理しています
-            </p>
-          </section>
-        )}
 
         {aiLoading && (
           <p style={{ fontSize: "13px", color: "#777", marginTop: "12px" }}>
