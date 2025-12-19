@@ -116,6 +116,7 @@ export default function Search() {
     subCategory: params.getAll("subCategory") || [],
     minPrice: params.get("minPrice") || "",
     maxPrice: params.get("maxPrice") || "",
+    sort: params.get("sort") || "",
   });
 
   // 入力中の値
@@ -179,6 +180,31 @@ export default function Search() {
             margin: "16px 0",
           }}
         />
+
+        {/* 並び替え */}
+        <div style={{ marginBottom: 16 }}>
+          <label style={{ marginRight: 8, fontWeight: "bold" }}>並び替え</label>
+          <select
+            value={input.sort}
+            onChange={(e) =>
+              setInput({
+                ...input,
+                sort: e.target.value,
+              })
+            }
+            style={{
+              fontSize: 13,
+              padding: "6px 10px",
+              borderRadius: 6,
+              border: "1px solid #d1d5db",
+              background: "#fff",
+            }}
+          >
+            <option value="">指定なし</option>
+            <option value="price_asc">価格が安い順</option>
+            <option value="price_desc">価格が高い順</option>
+          </select>
+        </div>
 
         <div style={{ marginTop: 12, marginBottom: 8 }}>
           <div style={{ marginBottom: 8, fontWeight: "bold" }}>カテゴリ</div>
