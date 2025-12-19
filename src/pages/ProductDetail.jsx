@@ -12,6 +12,7 @@ const ProductDetail = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [product, setProduct] = useState(null);
+  const [relatedProducts, setRelatedProducts] = useState([]);
   const { firebaseUser, appUser, loading } = useAuth();
 
   const [aiDecision, setAiDecision] = useState(null);
@@ -105,6 +106,7 @@ const ProductDetail = () => {
       .then((res) => res.json())
       .then((data) => {
         setProduct(data.product);
+        // Fetch related products after product is set
         if (API_BASE && data.product) {
           setAiLoading(true);
           fetch(`${API_BASE}/ai/purchase-decision-support`, {
@@ -127,7 +129,6 @@ const ProductDetail = () => {
                 setAiLoading(false);
                 return;
               }
-
               setAiDecision({
                 goodPoints: Array.isArray(result.goodPoints)
                   ? result.goodPoints
@@ -144,6 +145,28 @@ const ProductDetail = () => {
             .catch((err) => {
               console.error(err);
               setAiLoading(false);
+            });
+          // Fetch related products
+          fetch(
+            `${API_BASE}/products?category=${encodeURIComponent(
+              data.product.category
+            )}&excludeId=${encodeURIComponent(data.product.id)}`
+          )
+            .then((res) => res.json())
+            .then((relatedData) => {
+              let items = Array.isArray(relatedData.products)
+                ? relatedData.products
+                : [];
+              // Shuffle array
+              for (let i = items.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [items[i], items[j]] = [items[j], items[i]];
+              }
+              setRelatedProducts(items.slice(0, 4));
+            })
+            .catch((err) => {
+              console.error("関連商品の取得に失敗:", err);
+              setRelatedProducts([]);
             });
         }
       })
@@ -478,6 +501,124 @@ const ProductDetail = () => {
             >
               ※AIが商品情報をもとに購入判断の材料を整理しています
             </p>
+          </section>
+        )}
+        {/* 関連商品セクション */}
+        {relatedProducts.length > 0 && (
+          <section
+            style={{
+              border: "1px solid #e6e8eb",
+              borderRadius: "12px",
+              backgroundColor: "#ffffff",
+              padding: "16px 18px",
+              marginTop: "24px",
+              fontSize: "14px",
+              boxShadow: "0 6px 18px rgba(0,0,0,0.06)",
+            }}
+          >
+            <h3
+              style={{
+                marginTop: 0,
+                marginBottom: "12px",
+                fontSize: "15px",
+                fontWeight: "bold",
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+              }}
+            >
+              🛒 関連商品
+            </h3>
+            <div
+              style={{
+                display: "flex",
+                gap: "16px",
+                flexWrap: "wrap",
+                justifyContent: "flex-start",
+                marginTop: "8px",
+              }}
+            >
+              {relatedProducts.map((item) => (
+                <div
+                  key={item.id}
+                  onClick={() => navigate(`/products/${item.id}`)}
+                  style={{
+                    cursor: "pointer",
+                    border: "1px solid #e0e0e0",
+                    borderRadius: "8px",
+                    width: "140px",
+                    background: "#fafbfc",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+                    padding: "10px",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    transition: "box-shadow 0.15s",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "100%",
+                      aspectRatio: "1 / 1",
+                      borderRadius: "6px",
+                      overflow: "hidden",
+                      background: "#f3f3f3",
+                      border: "1px solid #eee",
+                      marginBottom: "8px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {item.imageUrl ? (
+                      <img
+                        src={item.imageUrl}
+                        alt={item.title}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                        }}
+                      />
+                    ) : (
+                      <span
+                        style={{
+                          color: "#aaa",
+                          fontSize: "12px",
+                        }}
+                      >
+                        画像なし
+                      </span>
+                    )}
+                  </div>
+                  <div
+                    style={{
+                      fontWeight: "bold",
+                      fontSize: "13px",
+                      color: "#333",
+                      marginBottom: "4px",
+                      textAlign: "center",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      width: "100%",
+                    }}
+                    title={item.title}
+                  >
+                    {item.title}
+                  </div>
+                  <div
+                    style={{
+                      color: "#d32f2f",
+                      fontWeight: "bold",
+                      fontSize: "13px",
+                    }}
+                  >
+                    {item.price}円
+                  </div>
+                </div>
+              ))}
+            </div>
           </section>
         )}
       </div>

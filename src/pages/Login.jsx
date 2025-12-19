@@ -2,7 +2,6 @@ import { useState } from "react";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  signOut,
   updateProfile,
 } from "firebase/auth";
 import { fireAuth } from "../firebase/firebase";
@@ -15,16 +14,24 @@ const Login = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [isRegistering, setIsRegistering] = useState(false);
   const navigate = useNavigate();
 
   // 新規登録
   const register = async () => {
+    const ok = window.confirm("新規会員登録を行います。本当によろしいですか？");
+    if (!ok) return;
+    setIsRegistering(true);
+
     if (!API_BASE) {
       alert("API_BASE is not defined");
+      setIsRegistering(false);
       return;
     }
     if (!name.trim()) {
       alert("ユーザー名を入力してください");
+      setIsRegistering(false);
       return;
     }
 
@@ -61,13 +68,20 @@ const Login = () => {
       navigate("/");
     } catch (err) {
       alert("登録に失敗しました: " + err.message);
+    } finally {
+      setIsRegistering(false);
     }
   };
 
   // ログイン
   const login = async () => {
+    const ok = window.confirm("ログインを行います。本当によろしいですか？");
+    if (!ok) return;
+    setIsLoggingIn(true);
+
     if (!API_BASE) {
       alert("API_BASE is not defined");
+      setIsLoggingIn(false);
       return;
     }
     try {
@@ -77,14 +91,9 @@ const Login = () => {
       navigate("/");
     } catch (err) {
       alert("ログイン失敗: " + err.message);
+    } finally {
+      setIsLoggingIn(false);
     }
-  };
-
-  // ログアウト
-  const logout = async () => {
-    await signOut(fireAuth);
-    alert("ログアウトしました");
-    navigate("/");
   };
 
   return (
@@ -129,8 +138,24 @@ const Login = () => {
         style={{ width: "100%", padding: "8px", margin: "8px 0" }}
       />
 
+      {isRegistering && (
+        <p
+          style={{ textAlign: "center", color: "#28a745", marginBottom: "8px" }}
+        >
+          会員登録を行っています...
+        </p>
+      )}
+      {isLoggingIn && (
+        <p
+          style={{ textAlign: "center", color: "#007bff", marginBottom: "8px" }}
+        >
+          ログインを行っています...
+        </p>
+      )}
+
       <button
         onClick={register}
+        disabled={isRegistering || isLoggingIn}
         style={{
           width: "100%",
           padding: "10px",
@@ -140,6 +165,7 @@ const Login = () => {
           border: "none",
           borderRadius: "6px",
           cursor: "pointer",
+          opacity: isRegistering || isLoggingIn ? 0.6 : 1,
         }}
       >
         新規登録
@@ -147,6 +173,7 @@ const Login = () => {
 
       <button
         onClick={login}
+        disabled={isLoggingIn || isRegistering}
         style={{
           width: "100%",
           padding: "10px",
@@ -156,25 +183,10 @@ const Login = () => {
           border: "none",
           borderRadius: "6px",
           cursor: "pointer",
+          opacity: isLoggingIn || isRegistering ? 0.6 : 1,
         }}
       >
         ログイン
-      </button>
-
-      <button
-        onClick={logout}
-        style={{
-          width: "100%",
-          padding: "10px",
-          marginTop: "10px",
-          background: "#dc3545",
-          color: "white",
-          border: "none",
-          borderRadius: "6px",
-          cursor: "pointer",
-        }}
-      >
-        ログアウト
       </button>
     </div>
   );

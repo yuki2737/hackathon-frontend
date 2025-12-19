@@ -7,6 +7,7 @@ const API_BASE = process.env.REACT_APP_API_BASE_URL;
 const MyPage = () => {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
+  const [fetching, setFetching] = useState(true);
 
   const { firebaseUser, loading } = useAuth();
 
@@ -28,6 +29,7 @@ const MyPage = () => {
 
     const uid = firebaseUser.uid;
 
+    setFetching(true);
     fetch(`${API_BASE}/products?uid=${uid}`)
       .then((res) => {
         if (!res.ok) {
@@ -38,9 +40,11 @@ const MyPage = () => {
       .then((data) => {
         console.log("MyPage response:", data);
         setProducts(data.products || []);
+        setFetching(false);
       })
       .catch((err) => {
         console.error("MyPage 商品取得エラー:", err);
+        setFetching(false);
       });
   }, [firebaseUser, loading]);
 
@@ -77,7 +81,12 @@ const MyPage = () => {
         購入履歴を見る
       </button>
 
-      {products.length === 0 ? (
+      {fetching ? (
+        <div style={{ textAlign: "center", color: "#777", padding: "40px 0" }}>
+          <div style={{ fontSize: "32px", marginBottom: "8px" }}>📦</div>
+          <div>出品した商品を読み込んでいます…</div>
+        </div>
+      ) : products.length === 0 ? (
         <p>まだ出品した商品はありません。</p>
       ) : (
         <div

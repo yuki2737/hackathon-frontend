@@ -304,20 +304,26 @@ const EditProduct = () => {
           boxSizing: "border-box",
         }}
       >
-        <input
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="商品名"
-          style={{ width: "100%", marginBottom: "8px" }}
-        />
+        <div style={{ marginBottom: "12px" }}>
+          <label style={{ fontSize: "13px", color: "#555" }}>商品名</label>
+          <input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="例：ナイキ エアマックス"
+            style={{ width: "100%", marginTop: "4px" }}
+          />
+        </div>
 
-        <input
-          type="number"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
-          placeholder="価格"
-          style={{ width: "100%", marginBottom: "12px" }}
-        />
+        <div style={{ marginBottom: "16px" }}>
+          <label style={{ fontSize: "13px", color: "#555" }}>価格（円）</label>
+          <input
+            type="number"
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            placeholder="例：5000"
+            style={{ width: "100%", marginTop: "4px" }}
+          />
+        </div>
 
         {/* カテゴリー選択（日本語ラベル、CreateProductと同じUI） */}
         <div
@@ -398,6 +404,22 @@ const EditProduct = () => {
           </div>
         )}
 
+        <div style={{ marginBottom: "16px" }}>
+          <label style={{ fontSize: "13px", color: "#555" }}>
+            AI生成用プロンプト（任意）
+          </label>
+          <textarea
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            placeholder="例：初心者向けに、丁寧で安心感のある商品説明文を作成してください"
+            style={{
+              width: "100%",
+              minHeight: "80px",
+              marginTop: "4px",
+              fontSize: "14px",
+            }}
+          />
+        </div>
         <button
           onClick={handleGenerateDescription}
           disabled={generating}
@@ -408,11 +430,15 @@ const EditProduct = () => {
 
         {error && <p style={{ color: "red" }}>{error}</p>}
 
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          style={{ width: "100%", minHeight: "140px", marginBottom: "16px" }}
-        />
+        <div style={{ marginBottom: "20px" }}>
+          <label style={{ fontSize: "13px", color: "#555" }}>商品説明</label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="商品の特徴・状態・おすすめポイントなどをご記入ください"
+            style={{ width: "100%", minHeight: "140px", marginTop: "4px" }}
+          />
+        </div>
 
         {/* 必須項目バリデーション */}
         {(() => {

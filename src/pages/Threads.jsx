@@ -16,6 +16,7 @@ const Threads = () => {
   const navigate = useNavigate();
   const { firebaseUser, loading } = useAuth();
   const [threads, setThreads] = useState([]);
+  const [fetching, setFetching] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -26,6 +27,7 @@ const Threads = () => {
     }
 
     const fetchThreads = async () => {
+      setFetching(true);
       try {
         const res = await fetch(`${API_BASE}/threads?uid=${firebaseUser.uid}`, {
           headers: {
@@ -36,8 +38,10 @@ const Threads = () => {
         console.log("threads api response", data);
         if (!res.ok) throw new Error(data.error || "取得失敗");
         setThreads((data?.threads ?? data) || []);
+        setFetching(false);
       } catch (e) {
         setError(e.message);
+        setFetching(false);
       }
     };
 
@@ -69,9 +73,16 @@ const Threads = () => {
         <h2 style={{ margin: 0, fontSize: "18px" }}>💬 メッセージ</h2>
       </div>
 
+      {fetching && (
+        <div style={{ textAlign: "center", color: "#777", padding: "40px 0" }}>
+          <div style={{ fontSize: "32px", marginBottom: "8px" }}>💬</div>
+          <div>メッセージを読み込んでいます…</div>
+        </div>
+      )}
+
       {error && <p style={{ color: "red" }}>{error}</p>}
 
-      {threads.length === 0 && (
+      {!fetching && threads.length === 0 && (
         <div style={{ textAlign: "center", color: "#777", padding: "40px 0" }}>
           <div style={{ fontSize: "32px", marginBottom: "8px" }}>💬</div>
           <div>まだメッセージはありません</div>

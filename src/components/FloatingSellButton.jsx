@@ -18,7 +18,7 @@ const FloatingSellButton = () => {
       }}
       style={{
         position: "fixed",
-        bottom: "90px",
+        bottom: "120px",
         right: "24px",
         padding: "14px 20px",
         backgroundColor: "#ff3b30",

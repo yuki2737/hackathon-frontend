@@ -40,7 +40,19 @@ const Tabs = () => {
               : "2px solid transparent",
         }}
       >
-        ホーム
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 15,
+            gap: 6,
+          }}
+        >
+          <span style={{ fontSize: 18 }}>🏠</span>
+          <span>ホーム</span>
+        </div>
       </Link>
 
       <Link
@@ -58,7 +70,19 @@ const Tabs = () => {
               : "2px solid transparent",
         }}
       >
-        カテゴリ/検索
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 15,
+            gap: 6,
+          }}
+        >
+          <span style={{ fontSize: 18 }}>🔍</span>
+          <span>カテゴリ/検索</span>
+        </div>
       </Link>
 
       <Link
@@ -76,7 +100,19 @@ const Tabs = () => {
               : "2px solid transparent",
         }}
       >
-        DM一覧
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 15,
+            gap: 6,
+          }}
+        >
+          <span style={{ fontSize: 18 }}>💬</span>
+          <span>DM一覧</span>
+        </div>
       </Link>
 
       <Link
@@ -94,7 +130,19 @@ const Tabs = () => {
               : "2px solid transparent",
         }}
       >
-        マイページ
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 15,
+            gap: 6,
+          }}
+        >
+          <span style={{ fontSize: 18 }}>👤</span>
+          <span>マイページ</span>
+        </div>
       </Link>
     </nav>
   );

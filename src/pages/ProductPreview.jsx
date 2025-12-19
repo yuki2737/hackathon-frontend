@@ -169,39 +169,51 @@ const ProductPreview = () => {
           zIndex: 2000,
         }}
       >
-        {product.status === "sold_out" ? (
-          <button
-            disabled
-            style={{
-              background: "#999",
-              color: "white",
-              padding: "12px",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "not-allowed",
-              width: "100%",
-              opacity: 0.8,
-            }}
-          >
-            SOLD OUT（編集不可）
-          </button>
-        ) : (
-          <button
-            onClick={() => navigate(`/products/${product.id}/edit`)}
-            style={{
-              background: "#1976d2",
-              color: "white",
-              padding: "12px",
-              border: "none",
-              borderRadius: "8px",
-              cursor: "pointer",
-              width: "100%",
-              fontWeight: "bold",
-            }}
-          >
-            編集する
-          </button>
-        )}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            padding: "12px 0 20px",
+            background:
+              "linear-gradient(to top, rgba(255,255,255,0.95), rgba(255,255,255,0.7))",
+            backdropFilter: "blur(6px)",
+          }}
+        >
+          {product.status === "sold_out" ? (
+            <button
+              disabled
+              style={{
+                background: "#b0b0b0",
+                color: "white",
+                padding: "12px 32px",
+                border: "none",
+                borderRadius: "999px",
+                cursor: "not-allowed",
+                fontSize: "14px",
+                opacity: 0.8,
+              }}
+            >
+              SOLD OUT
+            </button>
+          ) : (
+            <button
+              onClick={() => navigate(`/products/${product.id}/edit`)}
+              style={{
+                background: "#1976d2",
+                color: "white",
+                padding: "12px 36px",
+                border: "none",
+                borderRadius: "999px",
+                cursor: "pointer",
+                fontSize: "14px",
+                fontWeight: "bold",
+                boxShadow: "0 6px 16px rgba(25, 118, 210, 0.35)",
+              }}
+            >
+              編集する
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../auth/AuthProvider";
+import { CATEGORY_LABELS } from "../constants/categoryLabels";
 
 const API_BASE = process.env.REACT_APP_API_BASE_URL;
 
@@ -38,6 +39,7 @@ const ThreadDetail = () => {
           title: product.title,
           price: product.price,
           imageUrl: product.imageUrl || "",
+          category: product.category || "",
         });
 
         // ★ 出品者UIDは「商品を出品したユーザー」からのみ取得
@@ -237,8 +239,10 @@ const ThreadDetail = () => {
         display: "flex",
         flexDirection: "column",
         padding: "12px",
+        paddingBottom: "0",
         boxSizing: "border-box",
         position: "relative",
+        overflow: "hidden",
       }}
     >
       {isInvalidThreadId && (
@@ -268,12 +272,6 @@ const ThreadDetail = () => {
         <button onClick={() => navigate(-1)}>← 戻る</button>
         <h2 style={{ margin: 0, fontSize: "18px" }}>メッセージ</h2>
       </div>
-      {process.env.NODE_ENV !== "production" && (
-        <div style={{ fontSize: "12px", color: "#888", marginBottom: "8px" }}>
-          firebaseUid: {firebaseUser?.uid || "(none)"} / sellerUid:{" "}
-          {sellerUid || "(none)"} / isSeller: {String(isSeller)}
-        </div>
-      )}
 
       {error && (
         <div
@@ -341,6 +339,29 @@ const ThreadDetail = () => {
             )}
 
             <div style={{ flex: 1 }}>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "6px",
+                  marginBottom: "6px",
+                  flexWrap: "wrap",
+                }}
+              >
+                {product.category && (
+                  <span
+                    style={{
+                      padding: "2px 8px",
+                      fontSize: "11px",
+                      borderRadius: "999px",
+                      background: "#eef2ff",
+                      color: "#4338ca",
+                      border: "1px solid #dbeafe",
+                    }}
+                  >
+                    {CATEGORY_LABELS[product.category] || product.category}
+                  </span>
+                )}
+              </div>
               <div
                 style={{
                   fontSize: "15px",
@@ -496,50 +517,127 @@ const ThreadDetail = () => {
       {/* メッセージ一覧 */}
       <div
         style={{
-          flex: 1,
-          overflowY: "auto",
-          padding: "6px 2px",
-          paddingBottom: "12px",
-          borderRadius: "8px",
+          fontSize: "13px",
+          fontWeight: "bold",
+          color: "#555",
+          marginBottom: "6px",
         }}
       >
+        💬 メッセージ履歴
+      </div>
+      <div
+        style={{
+          flex: 1,
+          overflowY: "auto",
+          padding: "4px 2px",
+          marginBottom: 0,
+        }}
+      >
+        {sending && (
+          <div
+            style={{
+              textAlign: "center",
+              fontSize: "12px",
+              color: "#888",
+              margin: "8px 0",
+            }}
+          >
+            送信中…
+          </div>
+        )}
         {messages.length === 0 ? (
-          <p style={{ color: "#777", fontSize: "13px" }}>
-            まだメッセージはありません
-          </p>
+          <div
+            style={{
+              color: "#777",
+              fontSize: "13px",
+              textAlign: "center",
+              marginTop: "24px",
+            }}
+          >
+            まだメッセージはありません。
+            <br />
+            下の入力欄から最初のメッセージを送ってみましょう。
+          </div>
         ) : (
           messages.map((m) => {
             const isMine =
               firebaseUser &&
               (m.senderUid === firebaseUser.uid ||
                 m.sender?.uid === firebaseUser.uid);
+            // Format timestamp if present
+            let timestampStr = "";
+            if (m.createdAt) {
+              try {
+                const d = new Date(m.createdAt);
+                if (!isNaN(d)) {
+                  // Show as HH:mm or YYYY/MM/DD HH:mm if not today
+                  const now = new Date();
+                  const isToday =
+                    d.getFullYear() === now.getFullYear() &&
+                    d.getMonth() === now.getMonth() &&
+                    d.getDate() === now.getDate();
+                  const pad = (n) => n.toString().padStart(2, "0");
+                  if (isToday) {
+                    timestampStr = `${pad(d.getHours())}:${pad(
+                      d.getMinutes()
+                    )}`;
+                  } else {
+                    timestampStr = `${d.getFullYear()}/${pad(
+                      d.getMonth() + 1
+                    )}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(
+                      d.getMinutes()
+                    )}`;
+                  }
+                }
+              } catch {}
+            }
             return (
               <div
                 key={m.id}
                 style={{
                   display: "flex",
-                  marginBottom: "8px",
+                  flexDirection: "column",
+                  alignItems: isMine ? "flex-end" : "flex-start",
+                  marginBottom: "16px",
                 }}
               >
                 <span
                   style={{
                     display: "inline-block",
-                    background: isMine ? "#e60033" : "#eee",
-                    color: isMine ? "#fff" : "#000",
-                    padding: "8px 10px",
-                    borderRadius: "10px",
+                    background: isMine ? "#ffe5e9" : "#f7f7fa",
+                    color: "#222",
+                    padding: "6px 10px",
+                    borderRadius: isMine
+                      ? "16px 16px 4px 16px"
+                      : "16px 16px 16px 4px",
+                    boxShadow: "0 4px 14px rgba(0,0,0,0.12)",
                     maxWidth: "75%",
                     whiteSpace: "pre-wrap",
                     wordBreak: "break-word",
-                    fontSize: "14px",
-                    lineHeight: 1.4,
+                    fontSize: "15px",
+                    lineHeight: 1.6,
                     marginLeft: isMine ? "auto" : "0",
                     marginRight: isMine ? "0" : "auto",
-                    textAlign: isMine ? "right" : "left",
+                    textAlign: "left",
                   }}
                 >
                   {m.content}
                 </span>
+                {timestampStr && (
+                  <span
+                    style={{
+                      fontSize: "11px",
+                      color: "#999",
+                      marginTop: "3px",
+                      marginLeft: isMine ? "auto" : "6px",
+                      marginRight: isMine ? "6px" : "auto",
+                      textAlign: isMine ? "right" : "left",
+                      display: "block",
+                    }}
+                  >
+                    {timestampStr}
+                  </span>
+                )}
               </div>
             );
           })
@@ -555,6 +653,10 @@ const ThreadDetail = () => {
           paddingTop: "10px",
           borderTop: "1px solid #eee",
           background: "white",
+          boxShadow: "0 -2px 6px rgba(0,0,0,0.06)",
+          flexShrink: 0,
+          marginBottom: "0",
+          paddingBottom: "0",
         }}
       >
         <input
@@ -562,7 +664,7 @@ const ThreadDetail = () => {
           onChange={(e) => setContent(e.target.value)}
           style={{
             flex: 1,
-            padding: "10px 12px",
+            padding: "8px 10px",
             borderRadius: "10px",
             border: "1px solid #ddd",
             outline: "none",
@@ -570,7 +672,7 @@ const ThreadDetail = () => {
           placeholder={
             firebaseUser ? "メッセージを入力" : "ログインすると送信できます"
           }
-          disabled={!firebaseUser}
+          disabled={sending || !firebaseUser}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();
@@ -585,16 +687,20 @@ const ThreadDetail = () => {
             padding: "0 14px",
             borderRadius: "10px",
             border: "none",
-            background:
-              !firebaseUser || !content.trim() || sending ? "#aaa" : "#e60033",
+            background: sending
+              ? "#ccc"
+              : !firebaseUser || !content.trim()
+              ? "#aaa"
+              : "#e60033",
             color: "white",
-            cursor:
-              !firebaseUser || !content.trim() || sending
-                ? "not-allowed"
-                : "pointer",
+            cursor: sending
+              ? "wait"
+              : !firebaseUser || !content.trim()
+              ? "not-allowed"
+              : "pointer",
           }}
         >
-          送信
+          {sending ? "送信中…" : "送信"}
         </button>
       </div>
     </div>
