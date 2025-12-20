@@ -278,7 +278,6 @@ const CreateProduct = () => {
         maxWidth: "1000px",
         margin: "0 auto",
         boxSizing: "border-box",
-        height: "calc(100vh - 80px)",
       }}
     >
       {/* Left image column */}
@@ -289,10 +288,6 @@ const CreateProduct = () => {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          flexShrink: 0,
-          position: "sticky",
-          top: "96px",
-          alignSelf: "flex-start",
         }}
       >
         <h2 style={{ marginBottom: "12px" }}>商品画像</h2>
@@ -397,14 +392,7 @@ const CreateProduct = () => {
         )}
       </div>
       {/* Right form column */}
-      <div
-        style={{
-          flex: 1,
-          overflowY: "auto",
-          paddingRight: "4px",
-          maxHeight: "calc(100vh - 80px)",
-        }}
-      >
+      <div style={{ flex: 1 }}>
         <h1 style={{ marginBottom: "24px" }}>商品を出品</h1>
 
         <section style={{ marginBottom: "20px" }}>
