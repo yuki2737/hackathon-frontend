@@ -47,7 +47,7 @@ const Header = () => {
       style={{
         display: "flex",
         alignItems: "center",
-        padding: "12px 16px",
+        padding: "16px 16px",
         borderBottom: "1px solid #ddd",
         position: "fixed",
         top: 0,
@@ -58,9 +58,26 @@ const Header = () => {
         flexWrap: "wrap",
       }}
     >
-      <h2 style={{ cursor: "pointer" }} onClick={() => navigate("/")}>
-        Hackathon Market
-      </h2>
+      <div
+        onClick={() => navigate("/")}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          cursor: "pointer",
+          gap: "8px",
+        }}
+      >
+        <img
+          src="/logo192.png"
+          alt="EaseBuy logo"
+          style={{
+            width: "32px",
+            height: "32px",
+            borderRadius: "6px",
+          }}
+        />
+        <h2 style={{ margin: 0 }}>EaseBuy</h2>
+      </div>
 
       <div
         style={{
@@ -97,7 +114,7 @@ const Header = () => {
       <div
         style={{
           marginLeft: "auto",
-          marginTop: "8px",
+          marginTop: "0px",
           display: "flex",
           alignItems: "center",
           gap: "12px",
