@@ -2,10 +2,37 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthProvider";
 
+const ICONS = [
+  "🙂",
+  "😎",
+  "😊",
+  "🤖",
+  "🐶",
+  "🐱",
+  "🦊",
+  "🐼",
+  "🦁",
+  "🐸",
+  "🐵",
+  "🦄",
+  "🐯",
+  "🐨",
+];
+
 const Header = () => {
   const { firebaseUser, loading, logout } = useAuth();
   const navigate = useNavigate();
   const [keyword, setKeyword] = useState("");
+  const [icon, setIcon] = useState(() => {
+    if (!firebaseUser) return "🙂";
+    return localStorage.getItem(`userIcon_${firebaseUser.uid}`) || "🙂";
+  });
+
+  const handleIconSelect = (newIcon) => {
+    if (!firebaseUser) return;
+    setIcon(newIcon);
+    localStorage.setItem(`userIcon_${firebaseUser.uid}`, newIcon);
+  };
 
   const handleSearch = () => {
     if (!keyword) return;
@@ -67,20 +94,46 @@ const Header = () => {
         </button>
       </div>
 
-      {/* 右端に配置 */}
-      <div style={{ marginLeft: "auto", marginTop: "8px" }}>
+      <div
+        style={{
+          marginLeft: "auto",
+          marginTop: "8px",
+          display: "flex",
+          alignItems: "center",
+          gap: "12px",
+        }}
+      >
         {firebaseUser && (
-          <span
-            style={{
-              marginRight: "12px",
-              fontSize: "14px",
-              color: "#555",
-              fontWeight: "bold",
-            }}
-          >
-            {firebaseUser.displayName || firebaseUser.email} さん
-          </span>
+          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+            <select
+              value={icon}
+              onChange={(e) => handleIconSelect(e.target.value)}
+              style={{
+                fontSize: "18px",
+                borderRadius: "6px",
+                padding: "2px 4px",
+                cursor: "pointer",
+              }}
+            >
+              {ICONS.map((ic) => (
+                <option key={ic} value={ic}>
+                  {ic}
+                </option>
+              ))}
+            </select>
+            <span
+              style={{
+                fontSize: "14px",
+                color: "#555",
+                fontWeight: "bold",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {firebaseUser.displayName || firebaseUser.email} さん
+            </span>
+          </div>
         )}
+
         {firebaseUser ? (
           <button
             onClick={async () => {
@@ -97,6 +150,7 @@ const Header = () => {
               border: "none",
               borderRadius: "4px",
               cursor: "pointer",
+              whiteSpace: "nowrap",
             }}
           >
             ログアウト
@@ -111,6 +165,7 @@ const Header = () => {
               border: "none",
               borderRadius: "4px",
               cursor: "pointer",
+              whiteSpace: "nowrap",
             }}
           >
             ログイン
